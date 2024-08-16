@@ -1,0 +1,24 @@
+.nav-link-rounded {
+  border-radius: 25px;
+  padding: 0.5rem 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link-rounded:hover {
+  transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: #007bff; 
+  color: #fff !important;
+ 
+}
+
+.nav-link-rounded .icon {
+  transition: color 0.3s ease;
+}
+
+.nav-link-rounded:hover .icon {
+  color: #fff;
+}
+
+.nav-item{
+  padding-left: 30px;
+}
