@@ -1,7 +1,10 @@
-import React, { useRef, useState } from "react";
-import { IoMdAddCircleOutline, IoMdClose } from "react-icons/io";
-import { postImage } from "../../../api/user/userServices";
-import Loading from "../../../style/loading";
+import React, { useRef, useState } from 'react';
+import ReactCrop, { Crop } from 'react-image-crop';
+import 'react-image-crop/dist/ReactCrop.css';
+import { IoMdAddCircleOutline, IoMdClose } from 'react-icons/io';
+import { postImage } from '../../../api/user/userServices';
+import Loading from '../../../style/loading';
+import Modal from 'react-modal';
 
 interface ImageUploaderProps {
     images: string[];
@@ -17,35 +20,109 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     ];
 
     const [loading, setLoading] = useState<boolean[]>([false, false, false]);
+    const [crop, setCrop] = useState<Crop>({ aspect: 1 });
+    const [src, setSrc] = useState<string | null>(null);
+    const [image, setImage] = useState<HTMLImageElement | null>(null);
+    const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+    const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            const data = new FormData();
-            data.append("image", file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSrc(reader.result as string);
+                setCurrentIndex(index);
+                setModalIsOpen(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
-            setLoading((prev) => {
-                const newLoading = [...prev];
-                newLoading[index] = true;
-                return newLoading;
-            });
+    const handleImageLoaded = (image: HTMLImageElement) => {
+        setImage(image);
+    };
 
+    const getCroppedImg = (image: HTMLImageElement, crop: Crop): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+    
+            if (!ctx || !crop.width || !crop.height) {
+                reject(new Error('Could not get canvas context or crop dimensions'));
+                return;
+            }
+    
+            const scaleX = image.naturalWidth / image.width;
+            const scaleY = image.naturalHeight / image.height;
+    
+            canvas.width = crop.width;
+            canvas.height = crop.height;
+    
+            ctx.drawImage(
+                image,
+                crop.x ? crop.x * scaleX : 0,
+                crop.y ? crop.y * scaleY : 0,
+                crop.width ? crop.width * scaleX : 0,
+                crop.height ? crop.height * scaleY : 0,
+                0,
+                0,
+                crop.width,
+                crop.height
+            );
+    
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('Canvas is empty'));
+                    return;
+                }
+                resolve(blob);
+            }, 'image/jpeg');
+        });
+    };
+    
+    const handleCropComplete = async () => {
+        if (image && crop.width && crop.height) {
             try {
+                const croppedBlob = await getCroppedImg(image, crop);
+                setLoading((prev) => {
+                    const newLoading = [...prev];
+                    newLoading[currentIndex!] = true;
+                    return newLoading;
+                });
+    
+                const data = new FormData();
+                data.append('image', croppedBlob, 'cropped_image.jpg');
+    
                 const response = await postImage(data);
                 if (response && response.data) {
                     const imageUrl = response.data.url;
-                    onImagesChange(index, imageUrl);
+                    
+                    onImagesChange(currentIndex!, imageUrl);
                 }
             } catch (error) {
-                console.error("Error uploading image:", error);
+                console.error('Error uploading image:', error);
             } finally {
                 setLoading((prev) => {
                     const newLoading = [...prev];
-                    newLoading[index] = false;
+                    newLoading[currentIndex!] = false;
                     return newLoading;
                 });
             }
         }
+    };
+    
+    const handleModalClose = () => {
+        setModalIsOpen(false);
+        setSrc(null);
+        setCrop({ aspect: 1 });
+        setImage(null);
+        setCurrentIndex(null);
+    };
+
+    const handleSubmit = async () => {
+        await handleCropComplete();
+        handleModalClose();
     };
 
     return (
@@ -63,7 +140,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                         onClick={() => fileInputRefs[index].current?.click()}
                     >
                         {loading[index] ? (
-                            <Loading /> // Render loading component while image is being uploaded
+                            <Loading />
                         ) : images[index] ? (
                             <img
                                 src={images[index]}
@@ -84,6 +161,39 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                     )}
                 </div>
             ))}
+
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={handleModalClose}
+                contentLabel="Crop Image"
+                className="modal"
+                overlayClassName="overlay"
+                appElement={document.getElementById('root') || undefined}
+            >
+                <h2 className="text-xl mb-4">Crop Image</h2>
+                {src && (
+                    <ReactCrop
+                        src={src}
+                        crop={crop}
+                        onImageLoaded={handleImageLoaded}
+                        onChange={setCrop}
+                    />
+                )}
+                <div className="flex justify-end gap-2 mt-4">
+                    <button
+                        className="px-4 py-2 bg-gray-300 rounded"
+                        onClick={handleModalClose}
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-blue-500 text-white rounded"
+                        onClick={handleSubmit}
+                    >
+                        Submit
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 };

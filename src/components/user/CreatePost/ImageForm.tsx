@@ -25,14 +25,15 @@ const ImageForm: React.FC<ImageFormProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleImageChange = (index: number, imageUrl: string) => {
+    
     const newImages: string[] = [...formData.images];
-    newImages[index] = imageUrl; // imageUrl should always be a string
+    newImages[index] = imageUrl; 
     onFormDataChange({ images: newImages });
   };
   
   const handleRemoveImage = (index: number) => {
     const newImages: string[] = [...formData.images];
-    newImages[index] = ""; // Set to an empty string instead of null
+    newImages[index] = ""; 
     onFormDataChange({ images: newImages });
   };
   

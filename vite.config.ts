@@ -8,11 +8,16 @@ export default defineConfig({
     watch: {
       usePolling: true,
     },
+    
   },
 css: {
   modules: {
     scopeBehaviour: 'local',
   },
+  
+},
+optimizeDeps: {
+  include: ['react-image-crop'], 
 },
 })
 

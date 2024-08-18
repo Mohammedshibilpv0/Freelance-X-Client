@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import Editprofile from "./Mangeprofile";
 import { animateScroll as scroll } from "react-scroll";
 import Card from "../../components/user/Card/card";
-import { freelancerWork } from "../../api/user/userServices";
+import { freelancerWork,fetchClientData } from "../../api/user/userServices";
 import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
@@ -29,10 +29,14 @@ const Profile = () => {
       try {
         if (user.role === "Freelancer") {
           const response = await freelancerWork(user.email);
-          setProjects(response.data);
+          if(response.data.length>0){
+            setProjects(response.data)
+          }
         } else if (user.role === "Client") {
-          // const response = await fetchClientData(user.email); // Fetch client data
-          // setClientData(response.data);
+          const response = await fetchClientData(user.email); 
+          if(response.data.length>0){
+            setClientData(response.data)
+          }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -138,7 +142,7 @@ const Profile = () => {
                 {user.role === "Freelancer" && projects.length > 0 && (
                   <div className="ms-4 mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-12">
                     {projects.map((project, index) => (
-                      <div key={index} onClick={() => navigate(`/projectdetail/${project._id}/?myproject=true?&freelancer=true`)}>
+                      <div key={index} onClick={() => navigate(`/projectdetail/${project._id}/?myproject=true&freelancer=true`)}>
                         <Card
                           imageSrc={project.images[0]}
                           title={project.projectName}
@@ -150,7 +154,12 @@ const Profile = () => {
                 {user.role === "Client" && clientData.length > 0 && (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
                     {clientData.map((data, index) => (
-                      <div key={index}></div>
+                      <div key={index} onClick={() => navigate(`/projectdetail/${data._id}/?myproject=true&client=true`)}>
+                      <Card
+                        imageSrc={data.images[0]}
+                        title={data.projectName}
+                      />
+                    </div>
                     ))}
                   </div>
                 )}

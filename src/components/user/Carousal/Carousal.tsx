@@ -19,6 +19,7 @@ const Carousal: React.FC<PublishProps> = ({ data }) => {
             spaceBetween={30}
             slidesPerView={1}
             navigation
+            color='black'
             pagination={{ clickable: true }}
             autoplay={{ delay: 3000, disableOnInteraction: false }}
             loop={true}
@@ -28,9 +29,10 @@ const Carousal: React.FC<PublishProps> = ({ data }) => {
             {data.images.map((image, index) => (
                 <SwiperSlide key={index}>
                     <img
+                       sizes='1'
                         src={image}
                         alt={`Slide ${index + 1}`}
-                        className="w-full h-64 object-cover"
+                        className="object-cover"
                     />
                 </SwiperSlide>
             ))}

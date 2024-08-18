@@ -34,6 +34,7 @@ const ProfileButton = () => {
         Toast(response.message, 'success', true);
         updateUser('role', action);
         setIsLoading(false);
+        navigate('/');
       }, 3000);
     } else {
       setIsLoading(false);
