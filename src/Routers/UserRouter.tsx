@@ -7,6 +7,7 @@ import HomePage from "../pages/user/Home";
 import Profile from "../pages/profile/profile";
 import { NotFound } from "../components/404/404";
 import ProjectDetailsPage from "../components/user/DetailProject/ProjectDetailsPage";
+import Explore from "../pages/user/Explore";
 
 
 const ClientRouter = () => {
@@ -27,6 +28,7 @@ const ClientRouter = () => {
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={ <PrivateRoute element={Profile} isAuthRoute={false} />} /> 
         <Route path="/projectdetail/:id" element={<PrivateRoute element={ProjectDetailsPage} isAuthRoute={false} />} />
+        <Route path="/explore" element={<PrivateRoute element={Explore} isAuthRoute={false} />} />
       </Routes>
     </>
   );

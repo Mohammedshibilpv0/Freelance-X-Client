@@ -13,7 +13,7 @@ const useShowToast = () => {
       status: status,
       isClosable: isClosable,
       position: "top-right",
-      duration: 3000,
+      duration: 2000,
     });
   };
 

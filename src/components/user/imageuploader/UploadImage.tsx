@@ -20,7 +20,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     ];
 
     const [loading, setLoading] = useState<boolean[]>([false, false, false]);
-    const [crop, setCrop] = useState<Crop>({ aspect: 1 });
+    const [crop, setCrop] = useState<Crop>({ aspect: 16 / 9 });
     const [src, setSrc] = useState<string | null>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
@@ -47,18 +47,18 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
         return new Promise((resolve, reject) => {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-    
+
             if (!ctx || !crop.width || !crop.height) {
                 reject(new Error('Could not get canvas context or crop dimensions'));
                 return;
             }
-    
+
             const scaleX = image.naturalWidth / image.width;
             const scaleY = image.naturalHeight / image.height;
-    
+
             canvas.width = crop.width;
             canvas.height = crop.height;
-    
+
             ctx.drawImage(
                 image,
                 crop.x ? crop.x * scaleX : 0,
@@ -70,7 +70,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                 crop.width,
                 crop.height
             );
-    
+
             canvas.toBlob((blob) => {
                 if (!blob) {
                     reject(new Error('Canvas is empty'));
@@ -80,7 +80,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
             }, 'image/jpeg');
         });
     };
-    
+
     const handleCropComplete = async () => {
         if (image && crop.width && crop.height) {
             try {
@@ -90,14 +90,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                     newLoading[currentIndex!] = true;
                     return newLoading;
                 });
-    
+
                 const data = new FormData();
                 data.append('image', croppedBlob, 'cropped_image.jpg');
-    
+
                 const response = await postImage(data);
                 if (response && response.data) {
                     const imageUrl = response.data.url;
-                    
+
                     onImagesChange(currentIndex!, imageUrl);
                 }
             } catch (error) {
@@ -111,7 +111,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
             }
         }
     };
-    
+
     const handleModalClose = () => {
         setModalIsOpen(false);
         setSrc(null);
@@ -162,38 +162,42 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                 </div>
             ))}
 
-            <Modal
-                isOpen={modalIsOpen}
-                onRequestClose={handleModalClose}
-                contentLabel="Crop Image"
-                className="modal"
-                overlayClassName="overlay"
-                appElement={document.getElementById('root') || undefined}
+<Modal
+    isOpen={modalIsOpen}
+    onRequestClose={handleModalClose}
+    contentLabel="Crop Image"
+    className="fixed inset-0 flex items-center justify-center"
+    overlayClassName="fixed inset-0 bg-black bg-opacity-75"
+    appElement={document.getElementById('root') || undefined}
+>
+    <div className="bg-white p-4 rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 h-4/5 max-h-full overflow-auto">
+        <h2 className="text-xl mb-4">Crop Image</h2>
+        {src && (
+            <ReactCrop
+                src={src}
+                crop={crop}
+                onImageLoaded={handleImageLoaded}
+                onChange={setCrop}
+                className="w-full h-full"  // Ensure the crop tool takes full space
+            />
+        )}
+        <div className="flex justify-end gap-2 mt-4">
+            <button
+                className="px-4 py-2 bg-gray-300 rounded"
+                onClick={handleModalClose}
             >
-                <h2 className="text-xl mb-4">Crop Image</h2>
-                {src && (
-                    <ReactCrop
-                        src={src}
-                        crop={crop}
-                        onImageLoaded={handleImageLoaded}
-                        onChange={setCrop}
-                    />
-                )}
-                <div className="flex justify-end gap-2 mt-4">
-                    <button
-                        className="px-4 py-2 bg-gray-300 rounded"
-                        onClick={handleModalClose}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        className="px-4 py-2 bg-blue-500 text-white rounded"
-                        onClick={handleSubmit}
-                    >
-                        Submit
-                    </button>
-                </div>
-            </Modal>
+                Cancel
+            </button>
+            <button
+                className="px-4 py-2 bg-blue-500 text-white rounded"
+                onClick={handleSubmit}
+            >
+                Submit
+            </button>
+        </div>
+    </div>
+</Modal>
+
         </div>
     );
 };

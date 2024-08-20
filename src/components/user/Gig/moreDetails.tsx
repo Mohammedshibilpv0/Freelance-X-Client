@@ -12,12 +12,13 @@ interface MoreDetailsProps {
 const MoreDetails: React.FC<MoreDetailsProps> = ({ images, onImageChange, onRemoveImage, onNext, onPrev }) => {
   const [deadline, setDeadline] = useState('');
   const [price, setPrice] = useState<number | ''>('');
+  const [error,setError]=useState('')
 
   const handleNext = () => {
     if (deadline && price) {
       onNext(deadline, Number(price)); 
     } else {
-      alert("Please set both a valid deadline and price.");
+      setError("Please set both a valid deadline and price.");
     }
   };
 
@@ -44,7 +45,7 @@ const MoreDetails: React.FC<MoreDetailsProps> = ({ images, onImageChange, onRemo
           className="w-full mt-2 p-2 border rounded-md"
         />
       </div>
-
+    <p>{error}</p>
       <div className="mt-6">
         <label className="block text-gray-700">Price</label>
         <input

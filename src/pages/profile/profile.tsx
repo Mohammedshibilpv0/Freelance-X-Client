@@ -6,8 +6,9 @@ import { useEffect, useRef, useState } from "react";
 import Editprofile from "./Mangeprofile";
 import { animateScroll as scroll } from "react-scroll";
 import Card from "../../components/user/Card/card";
-import { freelancerWork,fetchClientData } from "../../api/user/userServices";
+import { freelancerWork, fetchClientData } from "../../api/user/userServices";
 import { useNavigate } from "react-router-dom";
+import Pagination from "../../components/user/pagination/Pagination";
 
 const Profile = () => {
   const user = Store((config) => config.user);
@@ -15,7 +16,10 @@ const Profile = () => {
   const [projects, setProjects] = useState<any[]>([]); 
   const [clientData, setClientData] = useState<any[]>([]); 
   const editProfileRef = useRef<HTMLDivElement>(null);
-  const navigate=useNavigate()
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(10);
+  const limit = 4;
+  const navigate = useNavigate();
 
   useEffect(() => {
     scroll.scrollToTop({
@@ -28,14 +32,20 @@ const Profile = () => {
     const fetchData = async () => {
       try {
         if (user.role === "Freelancer") {
-          const response = await freelancerWork(user.email);
-          if(response.data.length>0){
-            setProjects(response.data)
+          const response = await freelancerWork(user.email, currentPage, limit);
+          if (response.data && response.data.length > 0) {
+            setProjects(response.data);
+            setTotalPages(response.totalPages);
+          } else {
+            setProjects([]);
           }
         } else if (user.role === "Client") {
-          const response = await fetchClientData(user.email); 
-          if(response.data.length>0){
-            setClientData(response.data)
+          const response = await fetchClientData(user.email, currentPage, limit); 
+          if (response.data && response.data.posts.length > 0) {
+            setClientData(response.data.posts);
+            setTotalPages(response.totalPages);
+          } else {
+            setClientData([]);
           }
         }
       } catch (error) {
@@ -44,13 +54,11 @@ const Profile = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentPage, user.email, user.role]);
 
-  const handleeditUser = () => {
+  const handleEditUser = () => {
     setEditUser(!editUser);
   };
-
- 
 
   return (
     <section className="bg-gray-100 fade-in">
@@ -62,7 +70,7 @@ const Profile = () => {
                 <h3 className="text-lg font-semibold">Profile</h3>
                 <p
                   className="text-blue-700 cursor-pointer text-sm"
-                  onClick={handleeditUser}
+                  onClick={handleEditUser}
                 >
                   {!editUser ? "Edit" : ""}
                 </p>
@@ -132,14 +140,14 @@ const Profile = () => {
                   title={"Edit Profile"}
                   setEditUser={setEditUser}
                   scrollToRef={editProfileRef}
-                  handleeditUser={handleeditUser}
+                  handleeditUser={handleEditUser}
                 />
               </div>
             )}
             <div>
               <div className="flex flex-wrap ms-2 items-center text-gray-700 bg-white">
                 <p className="w-full">My Projects</p>
-                {user.role === "Freelancer" && projects.length > 0 && (
+                {user.role === "Freelancer" && projects.length > 0 ? (
                   <div className="ms-4 mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-12">
                     {projects.map((project, index) => (
                       <div key={index} onClick={() => navigate(`/projectdetail/${project._id}/?myproject=true&freelancer=true`)}>
@@ -150,8 +158,10 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
+                ) : (
+                  <p></p>
                 )}
-                {user.role === "Client" && clientData.length > 0 && (
+                {user.role === "Client" && clientData.length > 0 ? (
                   <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
                     {clientData.map((data, index) => (
                       <div key={index} onClick={() => navigate(`/projectdetail/${data._id}/?myproject=true&client=true`)}>
@@ -162,7 +172,16 @@ const Profile = () => {
                     </div>
                     ))}
                   </div>
+                ) : (
+                  <p></p>
                 )}
+                <div className="flex justify-end">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
               </div>
             </div>
           </div>

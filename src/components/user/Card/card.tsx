@@ -7,6 +7,7 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
+  
   return (
     <Box 
       cursor='pointer'
@@ -29,7 +30,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
         alt={title}
         borderTopRadius='lg'
         objectFit='cover'
-        height='200px'
+
       />
       <Stack mt='4' spacing='4' p='4'>
         <Heading size='md' noOfLines={1}>{title}</Heading>

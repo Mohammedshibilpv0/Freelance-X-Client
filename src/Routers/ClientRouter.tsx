@@ -13,7 +13,6 @@ const ClientRouter = () => {
        <NavbarDefault />  
         <Routes>
         <Route path="/createpost" element={User.role=='Client'?<PrivateRoute element={CreatePost} isAuthRoute={false} />: <Navigate to="/" replace />} /> 
-
         </Routes>
         </>
     );

@@ -76,10 +76,8 @@ export const postImage = async (data: object): Promise<PostImageResponse> => {
   } catch (err) {
       const axiosError = err as AxiosError;
       if (axiosError.response && axiosError.response.data) {
-          // Ensure that axiosError.response.data conforms to PostImageResponse
           return axiosError.response.data as PostImageResponse;
       } else {
-          // Handle other types of errors or rethrow
           throw new Error('An unexpected error occurred.');
       }
   }
@@ -111,9 +109,14 @@ export const createGig = async (formData:FormValues,email:string)=>{
   }
 }
 
-export const freelancerWork = async(email:string)=>{
+export const freelancerWork = async(email:string,page:number,limit:number)=>{
   try{
-    const response= await axiosInstance.get(`/freelancer/getfreelancerwork/${email}`)
+    const response= await axiosInstance.get(`/freelancer/getfreelancerwork/${email}`,{
+      params: {
+        page,
+        limit
+      }
+    })
     return response.data
   }catch(err){
     const axiosError = err as AxiosError;
@@ -124,10 +127,14 @@ export const freelancerWork = async(email:string)=>{
   }
 }
 
-export const fetchClientData= async (email:string)=>{
+export const fetchClientData= async (email:string,page:number,limit:number)=>{
   try{
-    const response= await axiosInstance.get(`/client/getuserspost/${email}`)
-    console.log(response.data.data);
+    const response= await axiosInstance.get(`/client/getuserspost/${email}`,{
+      params: {
+        page,
+        limit
+      }
+    })
     return response.data
   }catch(err){
     const axiosError = err as AxiosError;
@@ -140,9 +147,7 @@ export const fetchClientData= async (email:string)=>{
 export const getFreelancerWorkById = async (id:string|undefined)=>{
   try{
     const response=await axiosInstance.get(`/freelancer/gig/${id}`)
-    console.log(response);
-    
-    return response.data
+        return response.data
   }catch(err){
     const axiosError = err as AxiosError;
     if (axiosError.response) {
@@ -154,6 +159,54 @@ export const getFreelancerWorkById = async (id:string|undefined)=>{
 export const getClientPostById= async(id:string|undefined)=>{
   try{
     const response = await axiosInstance.get(`/client/post/${id}`)
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+export const posts= async(page:number=1,limit:number=2)=>{
+  try{
+    const response=await axiosInstance.get('/client/posts',{
+      params: {
+        page,
+        limit
+      }
+    })
+    return response.data
+
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+export const gigs = async (page:number=1,limit:number=2)=>{
+  try{
+    const response=await axiosInstance.get('/freelancer/gig',{
+      params: {
+        page,
+        limit
+      }
+    })
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+
+export const findUser= async(id:string)=>{
+  try{
+    const response=await axiosInstance.get(`/user/user/${id}`)
     return response.data
   }catch(err){
     const axiosError = err as AxiosError;
