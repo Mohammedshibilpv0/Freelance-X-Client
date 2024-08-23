@@ -3,7 +3,7 @@ import Table from "./Table";
 import { fetchUsers, manageUser } from "../../../api/admin/adminServices";
 import useShowToast from "../../../Custom Hook/showToaster";
 import Loading from "../../../style/loading";
-
+import Pagination from "../../user/pagination/Pagination";
 
 interface User {
   firstName: string;
@@ -19,13 +19,18 @@ const UserTable = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1); 
+  const [totalPages, setTotalPages] = useState<number>(1); 
+  const limit=7
   const Toast = useShowToast();
 
   useEffect(() => {
     const fetchUsersData = async () => {
+      setLoading(true);
       try {
-        const response = await fetchUsers();
-        setUsers(response.Data);
+        const response = await fetchUsers(currentPage, limit); 
+        setUsers(response.data.users);
+        setTotalPages(response.totalPages);
       } catch (err) {
         setError("Failed to fetch users");
       } finally {
@@ -34,7 +39,7 @@ const UserTable = () => {
     };
 
     fetchUsersData();
-  }, []);
+  }, [currentPage]);
 
   const columns = [
     {
@@ -89,10 +94,11 @@ const UserTable = () => {
     }
   };
 
+
+
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen">
-        {" "}
         <Loading />
       </div>
     );
@@ -118,6 +124,9 @@ const UserTable = () => {
         )}
         columns={columns}
       />
+      <div className="flex justify-end mt-4">
+      <Pagination currentPage={currentPage} onPageChange={setCurrentPage} totalPages={totalPages}/>
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import CategoryModal from './CategoryModal';
 import { fetchCategory, deleteCategory } from '../../../api/admin/adminServices';
 import Table from '../Table/Table';
 import useShowToast from '../../../Custom Hook/showToaster';
+import Pagination from '../../user/pagination/Pagination';
 
 interface Category {
    edit?:boolean
@@ -21,18 +22,23 @@ const CategoryTable = ({ onCategoryUpdate }: CategoryTableProps) => {
   const [isEditCategory, setIsEditCategory] = useState<boolean>(false);
   const [categoryId, setCategoryId] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(1); 
+  const [totalPages, setTotalPages] = useState<number>(1); 
+  const limit=7
 
   const Toast = useShowToast();
 
   const fetchCategories = async () => {
-    const response = await fetchCategory();
+    const response = await fetchCategory(currentPage, limit);
+    console.log(response.totalPages)
     setCategories(response.categories);
+    setTotalPages(response.totalPages);
     onCategoryUpdate(response.categories);
   };
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [currentPage]);
 
   const openAddModal = () => {
     setCategoryId(null);
@@ -103,6 +109,7 @@ const CategoryTable = ({ onCategoryUpdate }: CategoryTableProps) => {
   ];
 
   return (
+   <>
     <div className="container mx-auto px-20 mt-7">
       <div className="flex mt-12 justify-end">
         <Button colorScheme="green" onClick={openAddModal}>Add Category</Button>
@@ -122,6 +129,10 @@ const CategoryTable = ({ onCategoryUpdate }: CategoryTableProps) => {
         />
       )}
     </div>
+    <div className='flex justify-end me-20'>
+      <Pagination  currentPage={currentPage} onPageChange={setCurrentPage} totalPages={totalPages}/>
+    </div>
+   </>
   );
 };
 

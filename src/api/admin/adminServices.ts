@@ -23,9 +23,9 @@ export const adminLogin = async (email: string, password: string) => {
   }
 };
 
-export const fetchUsers = async () => {
+export const fetchUsers = async (page: number, limit: number) => {
   try {
-    const response = await axiosInstance.get("/admin/users");
+    const response = await axiosInstance.get(`/admin/users?page=${page}&limit=${limit}`);
     return response.data;
   } catch (err) {
     return { error: "An unexpected error occurred" };
@@ -59,9 +59,9 @@ export const addCategory= async(name:string,description:string)=>{
     }
 }
 
-export const fetchCategory= async()=>{
+export const fetchCategory= async(page: number, limit: number)=>{
   try{
-    const response=await axiosInstance.get('/admin/categories')
+    const response=await axiosInstance.get(`/admin/categories?page=${page}&limit=${limit}`)
     return response.data
   
   }catch(err){
@@ -129,9 +129,9 @@ export const addSubCategory = async(name:string, description:string, category:st
   }
 }
 
-export const getSubCategories=async()=>{
+export const getSubCategories=async(page: number, limit: number)=>{
   try{
-    const response=await axiosInstance.get('/admin/subcategories')
+    const response=await axiosInstance.get(`/admin/subcategories?page=${page}&limit=${limit}`)
     return response.data
     
   }catch(err){

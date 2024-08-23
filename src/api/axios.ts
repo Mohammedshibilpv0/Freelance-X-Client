@@ -1,6 +1,5 @@
 import axios from "axios";
-
-
+import Swal from "sweetalert2";
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000",
   // baseURL:'https://qnn863k8-3000.inc1.devtunnels.ms',
@@ -26,7 +25,16 @@ axiosInstance.interceptors.response.use(
         }
       } else if (error.response.status === 403) {
         localStorage.clear();
-        window.location.href = "/";
+        Swal.fire({
+          icon: "error",
+          title: "Access Denied",
+          text: "You have been blocked. Please contact support.",
+          timer: 6000,
+          timerProgressBar: true,
+          willClose: () => {
+            window.location.href = "/";
+          },
+        });
         return Promise.reject(error);
       }
     }

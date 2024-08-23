@@ -47,7 +47,7 @@ const ListCard = () => {
             {projects.map((project, index) => (
               <div
                 key={index}
-                onClick={() => navigate(`/projectdetail/${project._id}/?client=true`)}
+                onClick={() => navigate(`/projectdetail/${project._id}/?${role.toLocaleLowerCase()}=true`)}
                 className="cursor-pointer mx-auto"
               >
                 <Card

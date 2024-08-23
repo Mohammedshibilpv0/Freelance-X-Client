@@ -5,7 +5,7 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { FaRegMessage } from "react-icons/fa6";
 import ProfilButton from '../../components/user/profilebutton/profilButton';
 import Store from '../../store/store';
-
+import image from '../../assets/images/letter-f_14027513.png'
 
 interface NavItem {
   name: string;
@@ -36,6 +36,7 @@ const Navbar: React.FC = () => {
 
   const navItems = isAdminRoute ? adminNavItems : userNavItems;
   const navigate=useNavigate()
+  
 
   const handleLogout = () => {
     localStorage.removeItem('AdminAccessToken');
@@ -47,7 +48,7 @@ const Navbar: React.FC = () => {
     <nav className="bg-white shadow-sm sticky top-0 w-full z-10 ">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold">
-          Logo
+          <img className='h-9' src={image} alt="" />
         </Link>
 
         <div className="hidden md:flex space-x-4">

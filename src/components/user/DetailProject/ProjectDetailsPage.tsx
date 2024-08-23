@@ -8,6 +8,7 @@ import Carousal from "../Carousal/Carousal";
 import Loading from "../../../style/loading";
 import UserDetails from "./userDetails";
 import ApplicantstaList from "./applicantstaList";
+import Store from "../../../store/store";
 
 interface Category {
   _id: string;
@@ -22,6 +23,20 @@ interface SubCategory {
   category: string;
 }
 
+export interface requestInterface {
+ _id?: string;
+  message: string;
+  price: number;
+  userId?: {
+    _id: string;
+    email: string;
+    firstName:string
+    secondName:string
+  } 
+  status?: string;
+}
+
+
 export interface IProject {
   projectName: string;
   description: string;
@@ -30,6 +45,7 @@ export interface IProject {
   endBudget: string;
   deadline: Date;
   keyPoints: string[];
+  requests:requestInterface[];
   searchTags: [];
   images: string[];
   searchKey: string[];
@@ -37,7 +53,7 @@ export interface IProject {
   subcategory: SubCategory | string;
   price?: string | number;
   createAt: string;
-  userId:string
+  userId: string;
 }
 
 const ProjectDetailsPage: React.FC = () => {
@@ -48,17 +64,26 @@ const ProjectDetailsPage: React.FC = () => {
   const freelancer = searchParams.get("freelancer") === "true";
   const client = searchParams.get("client") === "true";
   const [projectData, setProjectData] = useState<IProject | null>(null);
-
+  const email= Store((config)=>config.user.email)
   useEffect(() => {
     async function fetchData() {
       try {
-        if (freelancer && id) {
-          const response = await getFreelancerWorkById(id);
-          setProjectData(response.data);
-        }
-        if (client && id) {
-          const response = await getClientPostById(id);
-          setProjectData(response.data);
+        if (myProject) {
+          if (freelancer && id) {
+            const response = await getFreelancerWorkById(id);
+            setProjectData(response.data);
+          } else if (client && id) {
+            const response = await getClientPostById(id);
+            setProjectData(response.data);
+          }
+        } else {
+          if (freelancer && id) {
+            const response = await getClientPostById(id);
+            setProjectData(response.data);
+          } else if (client && id) {
+            const response = await getFreelancerWorkById(id);
+            setProjectData(response.data);
+          }
         }
       } catch (error) {
         console.error("Error fetching project data:", error);
@@ -93,23 +118,20 @@ const ProjectDetailsPage: React.FC = () => {
     }
   );
 
+  const matchingRequest = projectData.requests?.find(request => 
+    typeof request.userId === 'object' && request.userId?.email === email
+  );
+  
+  const approvedUser = projectData.requests?.find(request => 
+    typeof request.userId === 'object' && request.status === "Approved"
+  );
+
+
   return (
     <div className="container mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[2fr,1fr]  gap-6">
       <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg p-4 ">
         <div className="md:w-1/2">
           <Carousal data={{ images: projectData.images }} />
-          <div className="mt-7">
-            {client && (
-              <div className="px-5">
-                <h2 className="text-2xl font-medium mb-2">Key Points</h2>
-                <ul className="list-disc ms-3">
-                  {projectData.keyPoints.map((key, index) => (
-                    <li key={index}>{key}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
         </div>
 
         <div className="md:w-1/2 p-4 ms-5">
@@ -166,10 +188,10 @@ const ProjectDetailsPage: React.FC = () => {
           </div>
           <div className="mb-6">
             <h2 className="text-xl font-bold mb-2 mt-3">
-              {client ? "Skill Required" : "Search Key"}
+              {projectData.skills ? "Skills" : "Search tag"}
             </h2>
             <div className="flex flex-wrap gap-2 mt-5">
-              {client && Array.isArray(projectData.skills)
+              {Array.isArray(projectData.skills)
                 ? projectData.skills.map((skill, index) => (
                     <span
                       key={`${skill}-${index}`}
@@ -191,11 +213,30 @@ const ProjectDetailsPage: React.FC = () => {
           </div>
         </div>
       </div>
-        {!myProject ? (
-          <UserDetails id={projectData.userId} />
-        ) : (
-          <ApplicantstaList/>
-        )}
+      {!myProject ? (
+    <UserDetails id={projectData.userId} projectId={id} matchingRequest={matchingRequest}  />
+) : (
+    approvedUser && approvedUser?.userId?._id ? (
+        <UserDetails id={approvedUser.userId._id} projectId={undefined} matchingRequest={null} />
+    ) : (
+        <ApplicantstaList applicantss={projectData.requests} projectData={projectData} setProjectData={setProjectData}/> 
+    )
+)}
+
+      <div className="container mx-auto  py-6 ">
+      <div className="flex flex-col md:flex-row bg-white shadow-md rounded-lg p-4 ">
+            {projectData.keyPoints && (
+              <div className="px-5">
+                <h2 className="text-2xl font-medium mb-2">Key Points</h2>
+                <ul className="list-disc ms-3">
+                  {projectData.keyPoints.map((key, index) => (
+                    <li key={index}>{key}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+      </div>
     </div>
   );
 };

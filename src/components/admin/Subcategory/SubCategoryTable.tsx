@@ -4,6 +4,7 @@ import SubCategoryModal from './SubCategoryModal';
 import { getSubCategories,deleteSubCategory } from '../../../api/admin/adminServices';
 import Table from '../Table/Table';
 import useShowToast from '../../../Custom Hook/showToaster';
+import Pagination from '../../user/pagination/Pagination';
 
 interface Category {
   _id: string;
@@ -29,6 +30,9 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
   const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
   const [subcategoryId, setSubCategoryId] = useState<string | null>(null);
   const [categoriesLoaded, setCategoriesLoaded] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState<number>(1); 
+  const [totalPages, setTotalPages] = useState<number>(1); 
+  const limit=1
 
   const openAddSubCategory = () => {
     setSubCategoryId(null);
@@ -40,12 +44,13 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await getSubCategories();
+      const response = await getSubCategories(currentPage, limit);
       
       if (response && Array.isArray(response.SubCategories)) {      
         console.log(response);
          
         setSubCategories(response.SubCategories);
+        setTotalPages(response.totalPages);
       } else {
         setSubCategories([]); 
       }
@@ -58,7 +63,7 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [currentPage]);
 
   const closeModal = () => setIsModalOpen(false);
   
@@ -132,6 +137,7 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
   ];
 
   return (
+   <>
     <div className="container mx-auto px-20 mt-7">
       <div className="flex mt-12 justify-end">
         <Button colorScheme="green" onClick={openAddSubCategory}>Add Subcategory</Button>
@@ -157,6 +163,10 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
         />
       )}
     </div>
+    <div className='flex justify-end me-24 mt-3'>
+      <Pagination  currentPage={currentPage} onPageChange={setCurrentPage} totalPages={totalPages}/>
+    </div>
+   </>
   );
 }
 

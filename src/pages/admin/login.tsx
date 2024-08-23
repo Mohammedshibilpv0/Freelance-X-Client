@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { isValidateEmail, isValidatePassword } from '../../utility/Validator';
 import toastr from 'toastr'
 import { adminLogin } from '../../api/admin/adminServices';
+import useShowToast from '../../Custom Hook/showToaster';
 
 const AdminLogin: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const Toaster=useShowToast()
   const navigate = useNavigate();
 
   const togglePasswordVisibility = () => {
@@ -43,7 +44,7 @@ const AdminLogin: React.FC = () => {
 
     const errors = validateForm();
     if (errors.length > 0) {
-      errors.forEach(error => toastr.error(error));
+      errors.forEach(error => Toaster(error,'error',true));
       setLoading(false);
       return;
     }
@@ -51,17 +52,15 @@ const AdminLogin: React.FC = () => {
     try {
       const response=await adminLogin(email,password)
         if(response.error){
-            console.log(response);
-            toastr.error(response.error.error)
+            Toaster(response.error.error,'error',true)
         }
         if(response.message){
-            toastr.success(response.message)
+          Toaster(response.message,'success',true)
             navigate('/admin')
         }
       
     } catch (error) {
-      toastr.error('Login failed');
-      console.error('Login failed:', error);
+      Toaster('Login failed','error',true);
     } finally {
       setLoading(false);
     }
