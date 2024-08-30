@@ -21,7 +21,7 @@ const UserTable = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1); 
   const [totalPages, setTotalPages] = useState<number>(1); 
-  const limit=7
+  const limit=10
   const Toast = useShowToast();
 
   useEffect(() => {

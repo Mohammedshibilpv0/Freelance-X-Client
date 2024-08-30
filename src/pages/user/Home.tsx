@@ -5,10 +5,7 @@ const Home = () => {
   return (
     <>
     <HomeBanner/>
-   
-    {/* <Services/> */}
-    
-
+    {/* <Services/> */}  
     </>
   );
 };

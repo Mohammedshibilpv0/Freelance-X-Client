@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchCategory } from '../../../api/admin/adminServices';
-import { fetchSubcategories } from "../../../api/user/userServices";
+import { fetchSubcategories,fetchCategory } from "../../../api/user/userServices";
 
 interface Category {
     _id: string;

@@ -32,7 +32,7 @@ const SubCategoryTable: React.FC<SubCategoryTableProps> = ({ categories }) => {
   const [categoriesLoaded, setCategoriesLoaded] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1); 
   const [totalPages, setTotalPages] = useState<number>(1); 
-  const limit=1
+  const limit=7
 
   const openAddSubCategory = () => {
     setSubCategoryId(null);

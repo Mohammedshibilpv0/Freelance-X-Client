@@ -8,6 +8,10 @@ import Profile from "../pages/profile/profile";
 import { NotFound } from "../components/404/404";
 import ProjectDetailsPage from "../components/user/DetailProject/ProjectDetailsPage";
 import Explore from "../pages/user/Explore";
+import Chat from "../pages/user/Chat";
+import PaymentForm from "../components/payment/paymentForm";
+import SuccessPage from "../components/payment/successPage";
+import FailurePage from "../components/payment/failurePage";
 
 
 const ClientRouter = () => {
@@ -29,6 +33,9 @@ const ClientRouter = () => {
         <Route path="/profile" element={ <PrivateRoute element={Profile} isAuthRoute={false} />} /> 
         <Route path="/projectdetail/:id" element={<PrivateRoute element={ProjectDetailsPage} isAuthRoute={false} />} />
         <Route path="/explore" element={<PrivateRoute element={Explore} isAuthRoute={false} />} />
+        <Route path="/message" element={<PrivateRoute element={Chat} isAuthRoute={false} />} />
+        <Route path="/success/:token/:id/:amount/:isPost" element={<SuccessPage/>}/>
+        <Route path="/fail/:token/:id/:amount/:isPost" element={<FailurePage/>}/>
       </Routes>
     </>
   );

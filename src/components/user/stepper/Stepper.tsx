@@ -10,7 +10,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({ currentStep, stepTi
   const activeColor = (index: number) => currentStep >= index ? 'bg-blue-500' : 'bg-gray-300';
 
   return (
-    <div className="flex flex-col items-center mt-4 sm:hidden">
+    <div className="flex flex-col items-center mt-4 md:hidden">
       <div className="flex items-center">
         {stepTitles.map((_, index) => (
           <React.Fragment key={index}>

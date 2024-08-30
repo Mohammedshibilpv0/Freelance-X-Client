@@ -178,7 +178,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                 crop={crop}
                 onImageLoaded={handleImageLoaded}
                 onChange={setCrop}
-                className="w-full h-full"  // Ensure the crop tool takes full space
+                className="w-full h-full"  
             />
         )}
         <div className="flex justify-end gap-2 mt-4">

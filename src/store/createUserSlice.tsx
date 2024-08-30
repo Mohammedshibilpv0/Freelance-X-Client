@@ -1,14 +1,13 @@
 import { StateCreator } from 'zustand';
 
 export type UserType = {
+    _id:string
     firstName: string;
     secondName:string
     email: string;
     phone: string;
     location: string;
     skills: string[];
-
-    
     role: string;
     country:string
     description :string
@@ -27,6 +26,7 @@ type Actions = {
 };
 
 const defaultUser: UserType = {
+    _id:'',
     firstName: '',
     secondName:'',
     email: '',

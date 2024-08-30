@@ -71,7 +71,6 @@ export const fetchCategory= async(page: number, limit: number)=>{
     }
     
   }
-
 }
 
 export const fetchCategoryById=async(categoryid:string|undefined|null)=>{

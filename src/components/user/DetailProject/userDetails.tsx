@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { findUser, requstingProject } from "../../../api/user/userServices";
+import { findMyFriends, findUser, requstingProject, sendInitailMessage } from "../../../api/user/userServices";
 import Store from "../../../store/store";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { socket } from "../../../socket/socket";
+import { IFriend } from "../../../pages/user/Chat";
 
 export interface requestInterface {
   id?: string;
@@ -34,18 +36,23 @@ const UserDetails: React.FC<prop> = ({
   projectId = undefined,
   matchingRequest = null,
 }) => {
+  const currentUserId = Store((config) => config.user._id);
+  const [users, setUsers] = useState<IFriend[]>([]);
   const [user, setUser] = useState<userType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [price, setPrice] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [priceError, setPriceError] = useState("");
-  const [status,setStatus]=useState(matchingRequest?.status)
+  const [status, setStatus] = useState(matchingRequest?.status);
+  const [isUserConnected, setIsUserConnected] = useState<any>(false);
   const role = Store((config) => config.user.role);
   const email = Store((config) => config.user.email);
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const myProject = searchParams.get("myproject") == "true";
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     if (id) {
@@ -56,6 +63,49 @@ const UserDetails: React.FC<prop> = ({
       fetchUser();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (myProject) {
+      const fetchUsers = async (myId: string) => {
+        try {
+          const data = await findMyFriends(myId);
+          if (data.list) {
+            setUsers((prevUsers) => {
+              const existingUserIds = new Set(prevUsers.map((user) => user.id));
+              const newUsers = data.list.friends.filter(
+                (friend: IFriend) => !existingUserIds.has(friend.id)
+              );
+
+              return [...prevUsers, ...newUsers];
+            });
+
+            const isConnected = data.list.friends.find(
+              (friend: IFriend) => friend.id === id
+            );
+            setIsUserConnected(isConnected);
+           
+          }
+        } catch (error) {
+          console.error('Failed to fetch friends:', error);
+        }
+      };
+
+      fetchUsers(currentUserId);
+    }
+  }, [id, myProject, currentUserId]);
+
+
+  useEffect(()=>{
+    socket.on("getinitialMessage", handleInitialMessage);
+
+  },[])
+
+  const handleInitialMessage = (data:{id:string,firstName:string,lastName:string,conversationId:string})=>{
+    console.log('gadsgjkdsakg',data)
+    setUsers((prevMessages)=>[...prevMessages,data])
+    setIsUserConnected(data);
+  }
+
 
   const formatDate = (dateString: Date) => {
     const options: Intl.DateTimeFormatOptions = {
@@ -104,11 +154,30 @@ const UserDetails: React.FC<prop> = ({
         );
         if (submitRequest) {
           setIsModalOpen(false);
-          setStatus('Pending'); 
+          setStatus('Pending');
         }
       }
     }
   };
+
+
+  const handleSendMessage = async (firstName: string, secondName: string) => {
+    if (currentUserId && projectId) {
+      if(!isUserConnected){
+        const message = `For the role of ${role}, I'm grateful for your selection. Today, we embark on our journey with Project ${projectId}. Let's make it a success together`;
+       
+        socket.emit("initialMessage", { currentUserId, message, id });
+       
+      }
+
+      navigate(`/message?_id=${id}&name1=${firstName}&name2=${secondName}`)
+     
+    }
+  };
+
+  const handleViewMessage =(firstName: string, secondName: string)=>{
+    navigate(`/message?_id=${id}&name1=${firstName}&name2=${secondName}&conversationId=${isUserConnected.conversationId}`)
+  }
 
   if (!user) return null;
 
@@ -146,22 +215,30 @@ const UserDetails: React.FC<prop> = ({
         </div>
       )}
       <div className="flex justify-center mt-14">
-        {!matchingRequest &&
-          (myProject ? (
-            <button
-              className="p-3 bg-green-500 rounded-md text-white text-md font-semibold"
-            >
-              Message
-            </button>
+        {!matchingRequest && myProject && (
+          isUserConnected ? (
+            <p onClick={()=>handleViewMessage(user.firstName, user.secondName)} className="p-3 bg-green-500 rounded-md text-white text-md font-semibold cursor-pointer">
+              View Messages
+            </p>
           ) : (
             <button
-              className="p-3 bg-green-500 rounded-md text-white text-md font-semibold cursor-pointer"
-              onClick={handleSendRequest}
-              disabled={status=='Pending'}
+              className="p-3 bg-green-500 rounded-md text-white text-md font-semibold"
+              onClick={() => handleSendMessage(user.firstName, user.secondName)}
             >
-              {status=='Pending'?status:'Send Request'}
+              Send Message
             </button>
-          ))}
+          )
+        )}
+
+        {!matchingRequest && !myProject && (
+          <button
+            className="p-3 bg-green-500 rounded-md text-white text-md font-semibold cursor-pointer"
+            onClick={handleSendRequest}
+            disabled={status === 'Pending'}
+          >
+            {status === 'Pending' ? status : 'Send Request'}
+          </button>
+        )}
 
         {matchingRequest && (
           <p className="p-3 bg-green-500 rounded-md text-white text-md font-semibold">

@@ -23,7 +23,7 @@ const Carousal: React.FC<PublishProps> = ({ data }) => {
             pagination={{ clickable: true }}
             autoplay={{ delay: 3000, disableOnInteraction: false }}
             loop={true}
-            className="rounded-lg overflow-hidden shadow-lg"
+            className="rounded-lg overflow-hidden z-0 shadow-lg"
             modules={[Navigation, Pagination, Autoplay]}
         >
             {data.images.map((image, index) => (

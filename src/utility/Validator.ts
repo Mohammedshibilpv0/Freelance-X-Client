@@ -46,7 +46,6 @@ export const profileValidation = (
     errors.push("Phone number is required.");
   } else {
     const phoneLength = 10;
-    console.log(phone.length);
 
     if (phoneLength && phone.length !== phoneLength) {
       errors.push(

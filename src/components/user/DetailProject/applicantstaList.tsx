@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { changeStatus } from '../../../api/user/userServices';
 import Store from '../../../store/store';
 import { IProject } from './ProjectDetailsPage';
+import { socket } from '../../../socket/socket';
 
 export interface Applicant {
     _id?: string;
@@ -29,6 +30,7 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
     const [name, setName] = useState<string | null>(null);
     const [id, setId] = useState<string | null | undefined>(null);
     const role = Store((config) => config.user.role);
+    const currentUserId=Store((config) => config.user._id);
 
     const handleViewClick = (
         objId: string | undefined,
@@ -58,7 +60,6 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
                 const updatedRequests = projectData.requests.map((request) =>
                     request._id === id ? { ...request, status: 'Approved' } : request
                 );
-                console.log(projectData)
                 setProjectData((prevData) =>
                     prevData ? { ...prevData, requests: updatedRequests } : null
                 );
@@ -69,6 +70,8 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
             setAmount(null);
             setName(null);
             setShowDialog(false);
+            const notification=`Your ${projectData.projectName} project is Approved please check your profile`
+            socket.emit('notification', { currentUserId, id, notification });
         }
     };
     

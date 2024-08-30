@@ -3,8 +3,7 @@ import ImageForm from "../../components/user/CreatePost/ImageForm";
 import PostForm from "../../components/user/CreatePost/PostForm";
 import StepperComponent from "../../components/user/stepper/Stepper";
 import Publish from "../../components/user/CreatePost/Publish";
-import { fetchCategory } from "../../api/admin/adminServices";
-import { fetchSubcategories } from "../../api/user/userServices";
+import { fetchSubcategories , fetchCategory} from "../../api/user/userServices";
 
 export interface FormData {
   projectName: string;

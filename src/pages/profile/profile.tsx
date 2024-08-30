@@ -5,21 +5,13 @@ import { FaLanguage, FaPhoneAlt } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import Editprofile from "./Mangeprofile";
 import { animateScroll as scroll } from "react-scroll";
-import Card from "../../components/user/Card/card";
-import { freelancerWork, fetchClientData } from "../../api/user/userServices";
-import { useNavigate } from "react-router-dom";
-import Pagination from "../../components/user/pagination/Pagination";
+import ProjectListing from "./projectListing";
 
 const Profile = () => {
   const user = Store((config) => config.user);
   const [editUser, setEditUser] = useState<boolean>(false);
-  const [projects, setProjects] = useState<any[]>([]); 
-  const [clientData, setClientData] = useState<any[]>([]); 
   const editProfileRef = useRef<HTMLDivElement>(null);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(10);
-  const limit = 4;
-  const navigate = useNavigate();
+  const [action,setAction]=useState<string>('myProject')
 
   useEffect(() => {
     scroll.scrollToTop({
@@ -28,33 +20,7 @@ const Profile = () => {
     });
   }, [editUser]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (user.role === "Freelancer") {
-          const response = await freelancerWork(user.email, currentPage, limit);
-          if (response.data && response.data.length > 0) {
-            setProjects(response.data);
-            setTotalPages(response.totalPages);
-          } else {
-            setProjects([]);
-          }
-        } else if (user.role === "Client") {
-          const response = await fetchClientData(user.email, currentPage, limit); 
-          if (response.data && response.data.posts.length > 0) {
-            setClientData(response.data.posts);
-            setTotalPages(response.totalPages);
-          } else {
-            setClientData([]);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, [currentPage, user.email, user.role]);
+ 
 
   const handleEditUser = () => {
     setEditUser(!editUser);
@@ -99,7 +65,7 @@ const Profile = () => {
               </div>
               <div className="flex items-center text-gray-700 mt-3">
                 <FaLocationDot className="mr-3" />
-                <p>{user.location ? user.location : "India"}</p>
+                <p>{user.country ? user.country : ""}</p>
               </div>
               <div className="flex items-center text-gray-700 mt-3">
                 <MdOutlineMailOutline className="mr-3" />
@@ -145,43 +111,13 @@ const Profile = () => {
               </div>
             )}
             <div>
+              <div className="flex gap-6 ">
+              <p onClick={()=>setAction('myProject')}  className={action=="myProject"?"cursor-pointer text-blue-400":'cursor-pointer'}  >My Projects</p>
+              <p  onClick={()=>setAction('myRequest')} className={action=="myRequest"?"cursor-pointer text-blue-400":'cursor-pointer'}  >My Requsest</p>
+              <p onClick={()=>setAction('approved')}   className={action=="approved"?"cursor-pointer text-blue-400": 'cursor-pointer'}  >Approved</p>
+              </div>
               <div className="flex flex-wrap ms-2 items-center text-gray-700 bg-white">
-                <p className="w-full">My Projects</p>
-                {user.role === "Freelancer" && projects.length > 0 ? (
-                  <div className="ms-4 mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-12">
-                    {projects.map((project, index) => (
-                      <div key={index} onClick={() => navigate(`/projectdetail/${project._id}/?myproject=true&freelancer=true`)}>
-                        <Card
-                          imageSrc={project.images[0]}
-                          title={project.projectName}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p></p>
-                )}
-                {user.role === "Client" && clientData.length > 0 ? (
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4">
-                    {clientData.map((data, index) => (
-                      <div key={index} onClick={() => navigate(`/projectdetail/${data._id}/?myproject=true&client=true`)}>
-                      <Card
-                        imageSrc={data.images[0]}
-                        title={data.projectName}
-                      />
-                    </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p></p>
-                )}
-                <div className="flex justify-end">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalPages={totalPages}
-                    onPageChange={setCurrentPage}
-                  />
-                </div>
+                <ProjectListing action={action}/>
               </div>
             </div>
           </div>

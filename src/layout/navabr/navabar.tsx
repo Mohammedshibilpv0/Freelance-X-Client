@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FiGrid, FiBook, FiBell, FiLogIn } from 'react-icons/fi';
 import { IoMdAddCircleOutline } from "react-icons/io";
@@ -6,6 +6,7 @@ import { FaRegMessage } from "react-icons/fa6";
 import ProfilButton from '../../components/user/profilebutton/profilButton';
 import Store from '../../store/store';
 import image from '../../assets/images/letter-f_14027513.png'
+import { initializeSocket } from '../../socket/socket';
 
 interface NavItem {
   name: string;
@@ -19,6 +20,13 @@ const Navbar: React.FC = () => {
   const isAdmin = localStorage.getItem('AdminAccessToken');
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
+
+  useEffect(()=>{
+    if(isLoggedIn){
+      initializeSocket();
+    }
+  })
+  
   
 
   const userNavItems: NavItem[] = [
@@ -45,7 +53,7 @@ const Navbar: React.FC = () => {
   }
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 w-full z-10 ">
+    <nav className="bg-white shadow-sm sticky top-0 w-full z-10">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         <Link to="/" className="text-xl font-bold">
           <img className='h-9' src={image} alt="" />

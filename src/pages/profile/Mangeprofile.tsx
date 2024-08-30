@@ -112,18 +112,18 @@ const Mangeprofile: React.FC<ProfileProp> = ({
         return;
       }
 
-      const isUnchanged =
-        user.firstName.trim() === firstName.trim() &&
-        user.secondName.trim() === secondName.trim() &&
-        // user.phone.trim() === phone.trim() &&
-        user.country === country &&
-        user.description.trim() === description.trim() &&
-        JSON.stringify(user.skills) === JSON.stringify(user.skills);
+      //const isUnchanged =
+      //   user.firstName.trim() === firstName.trim() &&
+      //   user.secondName.trim() === secondName.trim() &&
+      //   // user.phone.trim() === phone.trim() &&
+      //   user.country === country &&
+      //   user.description.trim() === description.trim() &&
+      //   JSON.stringify(user.skills) === JSON.stringify(user.skills);
 
-      if (isUnchanged) {
-        Toast("No changes detected", "info", true);
-        return;
-      }
+      // if (isUnchanged) {
+      //   Toast("No changes detected", "info", true);
+      //   return;
+      // }
 
       const skills = user.skills;
       const email = user.email;
