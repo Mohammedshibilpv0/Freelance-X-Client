@@ -1,25 +1,69 @@
-import { useEffect, useState, useRef } from 'react';
-import { FaArrowLeft, FaArrowDown } from 'react-icons/fa';
-import Store from '../../../store/store';
-import { socket } from '../../../socket/socket';
-import { getMessage } from '../../../api/user/userServices';
-import moment from 'moment';
-
+import { useEffect, useState, useRef } from "react";
+import { FaArrowLeft, FaArrowDown } from "react-icons/fa";
+import Store from "../../../store/store";
+import { socket } from "../../../socket/socket";
+import { getMessage } from "../../../api/user/userServices";
+import moment from "moment";
+import useShowToast from "../../../Custom Hook/showToaster";
+import notificationSound from "../../../assets/audio/mixkit-correct-answer-tone-2870.wav";
+import AudioMessage from "./audioButton";
+import { IFriend } from "../../../pages/user/Chat";
+import VoiceMessagePlayer from "./audioPlayer";
+import FileUploader from "./fileUpload";
+import ImageModal from "./viewImage";
+import ImageWithSkeleton from "./fileShowing";
+import { debounce } from 'lodash'
 interface ChatWindowProps {
-  chat: { id: string; firstName: string; lastName: string; conversationId: string };
+  chat: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    conversationId: string;
+    status?:string
+  };
   goBack: () => void;
-  openUser: string | null; 
+  openUser: string | null;
+  setFriends: React.Dispatch<React.SetStateAction<IFriend[]>>;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ chat, goBack, openUser }) => {
-  console.log(chat)
+export interface messageType {
+  sender: string;
+  text?: string;
+  audio?: any;
+  file?: any;
+  timestamp: Date;
+  status: string;
+  displayDate?: string;
+  messageId: string;
+}
+
+const ChatWindow: React.FC<ChatWindowProps> = ({
+  chat,
+  goBack,
+  openUser,
+  setFriends,
+}) => {
   const userId = Store((config) => config.user._id) as string;
   const [receiverId, setReceiverId] = useState<string | null>(null);
-  const [text, setText] = useState<string>('');
-  const [messages, setMessages] = useState<{ sender: string; text: string; timestamp: Date; displayDate?: string }[]>([]);
+  const [text, setText] = useState<string>("");
+  const [messages, setMessages] = useState<messageType[]>([]);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [typeConversation,setTypeConversation]=useState<string>('')
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const chatContainerRef = useRef<HTMLDivElement | null>(null);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    messageId: null,
+  });
+  const [isRecording, setIsRecording] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isTyping, setIsTyping] = useState<boolean>(false);
+
+  const Toast = useShowToast();
+  const users = Store((state) => state.user.users);
+  const lastSeen = Store((state) => state.user.lastSeen);
 
   useEffect(() => {
     setReceiverId(openUser);
@@ -38,68 +82,142 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat, goBack, openUser }) => {
     };
 
     fetchChat(chat.conversationId);
+  }, [receiverId, chat.conversationId]);
 
-    console.log('messsage',receiverId)
-    const handleMessage = (message: { sender: string; text: string; timestamp: Date }) => {
+  
+  useEffect(() => {
+    const handleTyping = (data: { type: string; conversationId: string }) => {
+      setTypeConversation(conversationId)
+      if (data.conversationId === chat.conversationId) {
+        setIsTyping(data.type === 'typing...');
+      }
+    };
+  
+    socket.on('changestatus', handleTyping);
+  
+    return () => {
+      socket.off('changestatus', handleTyping);
+    };
+  }, [chat.conversationId]);
+
+  
+  useEffect(() => {
+    const handleMessage = (message: {
+      sender: string;
+      text: string;
+      timestamp: Date;
+      status: string;
+      messageId: string;
+    }) => {
       if (message.sender === receiverId) {
         setMessages((prevMessages) => [...prevMessages, message]);
+        socket.emit("messageRead", message.messageId);
+        const audio = new Audio(notificationSound);
+        audio.play();
       }
     };
 
-    socket.on('messageContent', handleMessage);
+    socket.on("messageContent", handleMessage);
 
     return () => {
-      socket.off('messageContent', handleMessage);
+      socket.off("messageContent", handleMessage);
     };
   }, [receiverId]);
 
   useEffect(() => {
+    const handleMessageStatus = (messageId: string) => {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) =>
+          msg.messageId == messageId ? { ...msg, status: "read" } : msg
+        )
+      );
+    };
+
+    socket.on("messageReadConfirmation", handleMessageStatus);
+
+    return () => {
+      socket.off("messageReadConfirmation", handleMessageStatus);
+    };
+  }, [messages]);
+
+  useEffect(() => {
+    if (receiverId) {
+      const markAllAsRead = () => {
+        const unreadMessages = messages.filter(
+          (msg) => msg.status === "sent" && msg.sender !== userId
+        );
+        unreadMessages.forEach((msg) => {
+          socket.emit("messageRead", msg.messageId);
+        });
+      };
+
+      markAllAsRead();
+    }
+  }, [messages]);
+
+  useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
   const handleScroll = () => {
     if (chatContainerRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-      setShowScrollButton(scrollTop + clientHeight < scrollHeight - 100); 
+      setShowScrollButton(scrollTop + clientHeight < scrollHeight - 100);
     }
   };
 
   const handleScrollToBottom = () => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-      setShowScrollButton(false); 
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+      setShowScrollButton(false);
     }
   };
 
   const handleSubmission = () => {
     if (text.trim() && receiverId) {
+      const uniqueNumber = "" + Date.now() + Math.random();
       const message = {
+        messageId: uniqueNumber,
         sender: userId,
         text,
         timestamp: new Date(),
+        status: "sent",
       };
-
-      socket.emit('message', { senderId: userId, text, receiverId, timestamp: new Date() });
+      socket.emit("message", {
+        senderId: userId,
+        text,
+        receiverId,
+        timestamp: new Date(),
+        status: "sent",
+        messageId: message.messageId,
+      });
       setMessages((prevMessages) => [...prevMessages, message]);
-      setText('');
+      setFriends((prevFriends) =>
+        prevFriends.map((users) =>
+          users.id == receiverId
+            ? { ...users, lastMessage: text, updatedAt: new Date() }
+            : users
+        )
+      );
+      setText("");
     }
   };
 
   const formatDate = (date: Date) => {
     const now = moment();
     const msgDate = moment(date);
-    if (now.isSame(msgDate, 'day')) return 'Today';
-    if (now.subtract(1, 'day').isSame(msgDate, 'day')) return 'Yesterday';
-    return msgDate.format('MMMM Do YYYY');
+    if (now.isSame(msgDate, "day")) return "Today";
+    if (now.subtract(1, "day").isSame(msgDate, "day")) return "Yesterday";
+    return msgDate.format("MMMM Do YYYY");
   };
 
   const getMessageDate = () => {
-    let lastDate = '';
+    let lastDate = "";
     return messages.map((msg) => {
-      const date = moment(msg.timestamp).format('YYYY-MM-DD');
-      const displayDate = date !== lastDate ? formatDate(msg.timestamp) : '';
+      const date = moment(msg.timestamp).format("YYYY-MM-DD");
+      const displayDate = date !== lastDate ? formatDate(msg.timestamp) : "";
       lastDate = date;
       return { ...msg, displayDate };
     });
@@ -107,8 +225,91 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat, goBack, openUser }) => {
 
   const formattedMessages = getMessageDate();
 
+  const isOnline = users.some((user: any) => user.id === chat.id);
+
+  const formatLastSeen = (lastSeenTime: string | undefined) => {
+    const now = moment();
+    const lastSeenMoment = moment(lastSeenTime);
+
+    if (lastSeenMoment.isSame(now, "day")) {
+      return `Today at ${lastSeenMoment.format("h:mm A")}`;
+    } else if (lastSeenMoment.isSame(now.subtract(1, "day"), "day")) {
+      return `Yesterday at ${lastSeenMoment.format("h:mm A")}`;
+    } else {
+      return lastSeenMoment.format("MMMM Do YYYY [at] h:mm A");
+    }
+  };
+
+  const handleDeleteMessage = (messageId: any) => {
+    setMessages((prevMessages) =>
+      prevMessages.filter((msg) => msg.messageId !== messageId)
+    );
+    setContextMenu({ visible: false, x: 0, y: 0, messageId: null });
+  };
+
+  const handleRightClick = (event: any, messageId: any) => {
+    event.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: event.clientX,
+      y: event.clientY,
+      messageId: messageId,
+    });
+  };
+
+  const closeContextMenu = () => {
+    setContextMenu({ visible: false, x: 0, y: 0, messageId: null });
+  };
+
+  const handleCopyMessage = (messageId: string | number) => {
+    const messageObj = messages.find((msg) => msg.messageId === messageId);
+
+    if (messageObj) {
+      const messageText = messageObj.text;
+
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(messageText ?? "")
+          .then(() => {
+            console.log("Message copied to clipboard:", messageText);
+            Toast("Message copied to clipboard", "success", true);
+          })
+          .catch((err) => {
+            console.error("Failed to copy message:", err);
+          });
+      } else {
+        console.warn("Clipboard API is not available");
+      }
+    } else {
+      console.warn("Message not found");
+    }
+  };
+
+  const handleImageClick = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+  };
+  const conversationId=chat.conversationId
+  const stopTyping = debounce(() => {
+    socket.emit('typing', { type: '', receiverId, conversationId });
+  }, 5000);
+  
+  const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setText(e.target.value);
+    emitTyping();
+  
+    stopTyping();
+  };
+  
+  const emitTyping = () => {
+    socket.emit('typing', { type: 'typing...', receiverId, conversationId });
+  };
+
   return (
-    <div className="flex flex-col h-screen" style={{ height: 'calc(100vh - 70px)' }}>
+    <div
+      className="flex flex-col h-screen"
+      style={{ height: "calc(100vh - 70px)" }}
+      onClick={closeContextMenu}
+    >
       <div className="bg-gray-100 border-b p-4 flex items-center">
         <button onClick={goBack} className="text-gray-600 mr-4">
           <FaArrowLeft size={24} />
@@ -120,62 +321,160 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ chat, goBack, openUser }) => {
             </span>
           </div>
           <div>
-            <h2 className="text-lg font-semibold">{chat.firstName} {chat.lastName}</h2>
-            <p className="text-sm text-gray-500">Online</p>
-          </div>
+  <h2 className="text-lg font-semibold">
+    {chat.conversationId === typeConversation && isTyping ?  (
+      <div className="text-gray-500 text-sm mt-2">
+        {chat.firstName} is typing...
+      </div>
+    ) : (
+      <>
+        {chat.firstName} {chat.lastName}
+      </>
+    )}
+  </h2>
+  <p
+    className={`text-sm ${
+      isOnline ? "text-green-600" : "text-gray-500"
+    }`}
+  >
+    {isOnline ? "Online" : `Last seen: ${formatLastSeen(lastSeen)}`}
+  </p>
+</div>
+
         </div>
       </div>
 
-      <div 
-        ref={chatContainerRef}
-        className="flex-1 overflow-auto p-4"
-        onScroll={handleScroll}
-      >
+      <div ref={chatContainerRef} className="flex-1 overflow-auto p-4" onScroll={handleScroll}>
         {formattedMessages.map((msg, index) => (
-          <div key={index} className={`mb-4 ${msg.sender === userId ? 'text-right' : 'text-left'}`}>
+          <div
+            key={index}
+            className={`mb-4 ${
+              msg.sender === userId ? "text-right" : "text-left"
+            }`}
+          >
             {msg.displayDate && (
-              <div className="text-center text-gray-500 my-2">{msg.displayDate}</div>
+              <div className="text-center mb-2 text-gray-500 text-sm">
+                {msg.displayDate}
+              </div>
             )}
+
             <div
-              className={`inline-block p-3 rounded-lg ${msg.sender === userId ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              style={{ maxWidth: '350px' }}
+              className={`inline-block p-2 rounded-lg ${
+                msg.sender === userId && !msg.file && !msg.audio
+                  ? "bg-green-500 text-white ml-auto"
+                  : "bg-gray-200 text-gray-900"
+              }`}
+              style={{ maxWidth: "350px", textAlign: "left" }}
+              onContextMenu={
+                msg.sender === userId
+                  ? (e) => handleRightClick(e, msg.messageId)
+                  : undefined
+              }
             >
-              <p className="whitespace-pre-wrap break-words">{msg.text}</p>
+              {msg.text && <p>{msg.text}</p>}
+
+              {msg.file && (
+                <ImageWithSkeleton
+                  src={msg.file}
+                  alt="Image"
+                  onClick={() => handleImageClick(msg.file)}
+                />
+              )}
+
+              {msg.audio && <VoiceMessagePlayer audioSrc={msg.audio} />}
+              {msg.sender === userId && (
+                <span className="text-xs text-white ">
+                  <span className="ms-2 flex justify-end">
+                    {msg.status === "sent" ? "✓" : "✓✓"}
+                  </span>
+                </span>
+              )}
             </div>
+
             <div className="text-xs text-gray-500 mt-1">
-              {moment(msg.timestamp).format('h:mm a')}
+              {moment(msg.timestamp).format("h:mm A")}
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
+
+        {selectedImage && (
+          <ImageModal
+            imageUrl={selectedImage}
+            onClose={() => setSelectedImage(null)}
+          />
+        )}
       </div>
 
-      <div className="relative">
-  
-  {showScrollButton && (
-    <button
-      onClick={handleScrollToBottom}
-      className="absolute bottom-4 me-4 right-4 w-12 h-12 bg-gray-500 text-white rounded-full flex items-center justify-center shadow-md"
-    >
-      <FaArrowDown size={20} />
-    </button>
-  )}
-</div>
-
-      <div className="border-t p-4 bg-white">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              handleSubmission();
-            }
+      {contextMenu.visible && (
+        <div
+          className="absolute flex flex-col bg-white shadow-lg rounded-lg p-2"
+          style={{
+            top: contextMenu.y - 90,
+            left: contextMenu.x - 210,
+            zIndex: 1000,
           }}
-          type="text"
-          placeholder="Type a message..."
-          className="w-full p-2 border rounded-lg"
-        />
+        >
+          <button
+            className="px-4 py-2 text-red-500 hover:bg-gray-100 rounded-lg transition duration-300"
+            onClick={() => handleDeleteMessage(contextMenu.messageId)}
+          >
+            Delete
+          </button>
+          <button
+            className="px-4 py-2 text-gray-500 hover:bg-gray-100 rounded-lg transition duration-300"
+            onClick={() => handleCopyMessage(contextMenu.messageId ?? "")}
+          >
+            Copy
+          </button>
+        </div>
+      )}
 
+      {showScrollButton && (
+        <button
+          onClick={handleScrollToBottom}
+          className="fixed bottom-20 right-4 p-2 bg-blue-500 text-white rounded-full"
+        >
+          <FaArrowDown />
+        </button>
+      )}
+
+      <div className="bg-gray-100 p-2 flex items-center">
+        {userId && receiverId && (
+          <>
+            <AudioMessage
+              setFriends={setFriends}
+              isRecording={isRecording}
+              setIsRecording={setIsRecording}
+              receiverId={receiverId}
+              senderId={userId}
+              setMessages={setMessages}
+            />
+          </>
+        )}
+        {!isRecording && (
+          <>
+            <FileUploader
+            setFriends={setFriends}
+              senderId={userId}
+              receiverId={receiverId ?? ""}
+              setMessages={setMessages}
+            />
+            <input
+              type="text"
+              className="flex-1 border p-2 rounded-lg"
+              placeholder="Type a message..."
+              value={text}
+              onChange={(e) => handleText(e)}
+            />
+            <button
+              onClick={handleSubmission}
+              className="ml-4 bg-blue-500 text-white p-2 rounded-lg"
+            >
+              Send
+            </button>
+          </>
+        )}
       </div>
     </div>
   );

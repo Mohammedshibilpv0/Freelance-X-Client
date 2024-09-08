@@ -1,5 +1,10 @@
 import { StateCreator } from 'zustand';
 
+export interface onlineUsers{
+    id:string
+    socketId:string
+}
+
 export type UserType = {
     _id:string
     firstName: string;
@@ -13,6 +18,8 @@ export type UserType = {
     description :string
     language:string
     profile:string
+    users:onlineUsers[]|any
+    lastSeen?: string;
 };
 
 type State = {
@@ -37,7 +44,8 @@ const defaultUser: UserType = {
     description :'',
     language:'English',
     country:'',
-    profile:''
+    profile:'',
+    users:null
 };
 
 

@@ -58,11 +58,13 @@ const ListCard = () => {
             ))}
           </div>
           <div className='flex justify-end mt-7 me-5'>
-          <Pagination
+          {projects.length>0 && (
+            <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
             onPageChange={setCurrentPage}
           />
+          )}
           </div>
         </>
       )}

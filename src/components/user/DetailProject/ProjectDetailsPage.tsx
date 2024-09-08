@@ -316,7 +316,7 @@ const ProjectDetailsPage: React.FC = () => {
 
                     </div>
 
-                    {role=='Client'  && moment().isSameOrAfter(moment(module.date)) && !module.isPaid && (
+                    {role=='Client' && client && moment().isSameOrAfter(moment(module.date)) && !module.isPaid && (
                       <button
                         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                         onClick={() => handlePay(module,projectData)}

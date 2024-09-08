@@ -122,6 +122,8 @@ export interface IFriend {
   onlineStatus?: boolean;
   profilePictureUrl?: string;
   conversationId?: string;
+  updatedAt?:string|Date
+  lastMessage?:string
 }
 
 export interface Chat {
@@ -129,6 +131,9 @@ export interface Chat {
   firstName: string;
   lastName: string;
   conversationId: string;
+  updatedAt?:string|Date
+  lastMessage?:string
+  status?:string
 }
 
 const ChatPage = () => {
@@ -180,6 +185,7 @@ const ChatPage = () => {
           firstName: userToOpen.firstName || 'Unknown',
           lastName: userToOpen.lastName || 'Unknown',
           conversationId: userToOpen.conversationId || conversationId,
+
         });
       }
     }
@@ -191,6 +197,8 @@ const ChatPage = () => {
       firstName: friend.firstName || 'Unknown',
       lastName: friend.lastName || 'Unknown',
       conversationId: friend.conversationId || '',
+      lastMessage:friend.lastMessage,
+      updatedAt:friend.updatedAt,
     }));
   };
 
@@ -207,15 +215,13 @@ const ChatPage = () => {
   return (
     <div className="flex h-screen" style={{ height: 'calc(100vh - 70px)' }}>
       <div className="flex flex-col md:flex-row w-full">
-        {/* Sidebar */}
         <div className={`md:w-1/4 w-full bg-gray-100 border-r md:border-r-0 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
-          <Sidebar chats={transformToChats(users)} onSelectChat={handleSelectChat} />
+          <Sidebar chats={transformToChats(users)} onSelectChat={handleSelectChat}/>
         </div>
 
-        {/* Chat Window */}
         <div className="flex-1">
           {selectedChat ? (
-            <ChatWindow chat={selectedChat} goBack={goBack} openUser={openedUser} />
+            <ChatWindow chat={selectedChat} goBack={goBack} openUser={openedUser} setFriends={setUsers} />
           ) : (
             <div className="flex items-center justify-center h-full md:hidden">
               <p className="text-gray-500">Select a chat to start messaging</p>

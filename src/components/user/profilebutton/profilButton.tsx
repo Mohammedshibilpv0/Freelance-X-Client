@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Store from '../../../store/store';
 import { Link, useNavigate } from 'react-router-dom';
 import { logout } from '../../../api/user/AuthuserServices';
@@ -14,12 +14,31 @@ const ProfileButton = () => {
   const { clearUser } = Store();
   const navigate = useNavigate();
   const Toast = useShowToast();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const logouthandle = () => {
     logout();
     clearUser();
     navigate('/login');
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [open]);
 
   const toggleDropdown = () => {
     setOpen(!open);
@@ -42,7 +61,7 @@ const ProfileButton = () => {
   };
 
   return (
-    <div className="relative inline-flex me-2">
+    <div className="relative inline-flex me-2" ref={dropdownRef}>
       {isLoading && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
           <Loading />

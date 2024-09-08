@@ -94,14 +94,19 @@ const UserDetails: React.FC<prop> = ({
     }
   }, [id, myProject, currentUserId]);
 
+  useEffect(() => {
+    if (socket) {
+      socket.on("getinitialMessage", handleInitialMessage);
+    }
 
-  useEffect(()=>{
-    socket.on("getinitialMessage", handleInitialMessage);
-
-  },[])
+    return () => {
+      if (socket) {
+        socket.off("getinitialMessage", handleInitialMessage);
+      }
+    };
+  }, []);
 
   const handleInitialMessage = (data:{id:string,firstName:string,lastName:string,conversationId:string})=>{
-    console.log('gadsgjkdsakg',data)
     setUsers((prevMessages)=>[...prevMessages,data])
     setIsUserConnected(data);
   }
@@ -165,8 +170,8 @@ const UserDetails: React.FC<prop> = ({
     if (currentUserId && projectId) {
       if(!isUserConnected){
         const message = `For the role of ${role}, I'm grateful for your selection. Today, we embark on our journey with Project ${projectId}. Let's make it a success together`;
-       
-        socket.emit("initialMessage", { currentUserId, message, id });
+        const uniqueNumber = Date.now() + Math.random();
+        socket.emit("initialMessage", { currentUserId, message, id,messageId:uniqueNumber});
        
       }
 

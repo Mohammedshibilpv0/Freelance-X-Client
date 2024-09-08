@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Image, Stack, Heading,  } from '@chakra-ui/react';
+import React, { useState } from 'react';
+import { Box, Image, Stack, Heading, Skeleton } from '@chakra-ui/react';
 
 interface CardProps {
   imageSrc: string;
@@ -7,7 +7,8 @@ interface CardProps {
 }
 
 const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
-  
+  const [imageLoaded, setImageLoaded] = useState<boolean>(false);
+
   return (
     <Box 
       cursor='pointer'
@@ -24,18 +25,23 @@ const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
       opacity='0'
       animation='fadeIn 0.5s forwards'
     >
+      {!imageLoaded && (
+        <Skeleton height="200px" width='415px' borderTopRadius='lg' />
+      )}
+      
       <Image
         className='object-cover'
         src={imageSrc}
         alt={title}
         borderTopRadius='lg'
         objectFit='cover'
-
+        onLoad={() => setImageLoaded(true)} 
+        display={imageLoaded ? 'block' : 'none'} 
       />
+      
       <Stack mt='4' spacing='4' p='4'>
         <Heading size='md' noOfLines={1}>{title}</Heading>
       </Stack>
-
     </Box>
   );
 };

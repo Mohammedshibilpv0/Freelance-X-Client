@@ -1,0 +1,36 @@
+.voice-message-player {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .progress-bar {
+    width: 100px;
+    height: 4px;
+    background-color: lightgray;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .progress {
+    height: 100%;
+    background-color: blue;
+  }
+  
+  button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .time {
+    font-size: 12px;
+  }
+  
