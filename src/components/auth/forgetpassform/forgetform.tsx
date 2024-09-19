@@ -13,7 +13,7 @@ interface ForgetPasswordProps {
 const Forgetform: React.FC<ForgetPasswordProps> = ({email }) => {
   const [password,setPassword]=useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
+  const loading=false
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
   const navigate=useNavigate()

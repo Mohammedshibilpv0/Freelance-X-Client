@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Table from '../Table/Table';
 import { getUserPosts, updateBlockStatus } from '../../../api/admin/adminServices';
 import Pagination from '../../user/pagination/Pagination';
-import { ReceiptEuro } from 'lucide-react';
 import { Empty } from 'antd';
 
 interface UserPost {

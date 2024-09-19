@@ -14,13 +14,13 @@ interface OtpProps {
 const Otp: React.FC<OtpProps> = ({ email, submitType }) => {
   const [otp, setOtp] = useState<string[]>(Array(4).fill(''));
   const [loading, setLoading] = useState(false);
-  const [subtype, setSubtype] = useState<string>(submitType);
   const [timeLeft, setTimeLeft] = useState(120);
   const [changePasswordComponent, setPasswordComponent] = useState<boolean>(false);
   const [isExpired, setIsExpired] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const navigate = useNavigate();
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const subtype=submitType
 
   useEffect(() => {
     if (inputRefs.current[0]) {

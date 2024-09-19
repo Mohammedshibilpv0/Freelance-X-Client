@@ -26,7 +26,6 @@ interface Report {
 
 const ReportTable = () => {
   const [users, setUsers] = useState<Report[]>([]);
-  const [noData, setNoData] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const limit = 7;
@@ -39,11 +38,9 @@ const ReportTable = () => {
         if (response) {
           setUsers(response.reports);
           setTotalPages(response.totalPages);
-          setNoData(response.reports.length === 0);
         }
       } catch (error) {
         console.error('Error fetching reports:', error);
-        setNoData(true); 
       }
     };
 

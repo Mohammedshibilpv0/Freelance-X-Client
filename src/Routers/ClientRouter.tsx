@@ -1,4 +1,4 @@
-import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import NavbarDefault from "../layout/navbar/navbar";
 import PrivateRoute from "./ClientProtectedRoute";
 import CreatePost from "../pages/user/CreatePost";

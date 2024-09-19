@@ -29,7 +29,7 @@ const Explore: React.FC = () => {
         socket.on("notification", (notification) => {
             console.log("Notification received:", notification); 
 
-            const { sender, receiver, text, time } = notification;
+            const {  receiver, text } = notification;
 
             if (myId === receiver) {
                 console.log("Notification matches user ID. Displaying toast:", text);

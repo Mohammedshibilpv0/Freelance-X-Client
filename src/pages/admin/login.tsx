@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { isValidateEmail, isValidatePassword } from '../../utility/Validator';
-import toastr from 'toastr'
 import { adminLogin } from '../../api/admin/adminServices';
 import useShowToast from '../../Custom Hook/showToaster';
 

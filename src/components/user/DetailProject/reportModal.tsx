@@ -7,10 +7,9 @@ interface ReportModalProps {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
-  onReport: (reason: string) => void; 
 }
 
-const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, onReport, userId }) => {
+const ReportModal: React.FC<ReportModalProps> = ({ isOpen, onClose, userId }) => {
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [customReason, setCustomReason] = useState("");
   const [loading, setLoading] = useState(false);

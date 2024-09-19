@@ -9,7 +9,6 @@ interface prop{
 const VoiceMessagePlayer:React.FC<prop> = ({ audioSrc }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [speed, setSpeed] = useState(1); 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -25,11 +24,7 @@ const VoiceMessagePlayer:React.FC<prop> = ({ audioSrc }) => {
       }
     };
 
-    const handleLoadedMetadata = () => {
-      if (audio.duration) {
-        setDuration(audio.duration);
-      }
-    };
+  
 
     const handleEnded = () => {
       setIsPlaying(false);
@@ -38,12 +33,10 @@ const VoiceMessagePlayer:React.FC<prop> = ({ audioSrc }) => {
     };
 
     audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
     audio.addEventListener('ended', handleEnded);
 
     return () => {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
       audio.removeEventListener('ended', handleEnded);
     };
   }, []);

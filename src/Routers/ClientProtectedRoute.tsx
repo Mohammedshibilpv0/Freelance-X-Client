@@ -1,8 +1,8 @@
 import React from 'react';
-import { Navigate, RouteProps } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import Store from '../store/store';
 
-interface PrivateRouteProps extends RouteProps {
+interface PrivateRouteProps  {
   element: React.ComponentType<any>;
   isAuthRoute?: boolean;
 }

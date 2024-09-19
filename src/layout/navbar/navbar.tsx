@@ -31,7 +31,7 @@ const Navbar: React.FC = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [incomingCall, setIncomingCall] = useState(false);
   const [receiverId,setReceiverId]=useState('')
-  const [conversationId,setConversationId]=useState('')
+  // const [conversationId,setConversationId]=useState('')
   const [name,setName]=useState('')
   const notificationRef = useRef<HTMLDivElement>(null);
   const Toast= useShowToast()
@@ -93,7 +93,7 @@ const Navbar: React.FC = () => {
       socket.on('videocallAlert',(data)=>{
        setReceiverId(data.senderId)
        setIncomingCall(true)
-       setConversationId(data.conversatioId)
+      //  setConversationId(data.conversatioId)
        setName(data.name)
       })
       socket.on('removeUser', handleRemoveUser);
