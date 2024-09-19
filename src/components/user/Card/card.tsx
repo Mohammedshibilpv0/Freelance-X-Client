@@ -26,7 +26,7 @@ const Card: React.FC<CardProps> = ({ imageSrc, title }) => {
       animation='fadeIn 0.5s forwards'
     >
       {!imageLoaded && (
-        <Skeleton height="200px" width='415px' borderTopRadius='lg' />
+        <Skeleton height="200px" width='400px' borderTopRadius='lg' />
       )}
       
       <Image

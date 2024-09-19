@@ -34,7 +34,8 @@ const FileUploader: React.FC<FileUploaderProps> = ({ senderId, receiverId, setMe
       
       try {
         const Data = await postImage(formData);
-        const imageUrl = Data.data.url;
+        console.log(Data)
+        const imageUrl = Data.url;
         const messageId = "" + Date.now() + Math.random();
 
         const fileMessage = {

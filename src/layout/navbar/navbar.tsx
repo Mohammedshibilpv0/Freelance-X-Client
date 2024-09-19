@@ -7,13 +7,17 @@ import ProfilButton from '../../components/user/profilebutton/profilButton';
 import Store from '../../store/store';
 import image from '../../assets/images/letter-f_14027513.png'
 import { initializeSocket, socket } from '../../socket/socket';
-import NotificationDropdown from '../../components/user/notification/notification';
-
+import NotificationDropdown, { INotification } from '../../components/user/notification/notification';
+import useShowToast from '../../Custom Hook/showToaster';
+import VideoCallNotification from '../../components/user/videoCallAleart/videocall.opup';
 interface NavItem {
   name: string;
   logo: JSX.Element;
   link: string;
 }
+
+
+
 
 const Navbar: React.FC = () => {
   const user = Store((config) => config.user);
@@ -24,9 +28,13 @@ const Navbar: React.FC = () => {
   const isAdminRoute = location.pathname.startsWith('/admin');
   const id = user._id;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false); 
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [incomingCall, setIncomingCall] = useState(false);
+  const [receiverId,setReceiverId]=useState('')
+  const [conversationId,setConversationId]=useState('')
+  const [name,setName]=useState('')
   const notificationRef = useRef<HTMLDivElement>(null);
-
+  const Toast= useShowToast()
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
@@ -35,14 +43,7 @@ const Navbar: React.FC = () => {
     setIsNotificationOpen(!isNotificationOpen);
   };
 
-  const notifications = [
-    { id: 1, message: "You have a new message from AAAAAAAAAAA" },
-    { id: 2, message: "Your gig was approved" },
-    { id: 3, message: "You received a new review" },
-    { id: 4, message: "Payment was received" },
-    { id: 5, message: "Reminder: Project deadline is tomorrow" },
-    { id: 6, message: "Your account has been updated" },
-  ];
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,15 +77,36 @@ const Navbar: React.FC = () => {
         addUsers.updateUser('users', users);
       };
 
+      const handleNotification = (data: INotification) => {
+        console.log(data)
+        Toast(data.message,'success',true)
+      };
+      socket.on('notification', handleNotification);
+  
+
+      
+
       socket.on('getUser', handleGetUser);
+      socket.on('declineVideoCall',(data)=>{
+        Toast(data.name,'error',true)
+      })
+      socket.on('videocallAlert',(data)=>{
+       setReceiverId(data.senderId)
+       setIncomingCall(true)
+       setConversationId(data.conversatioId)
+       setName(data.name)
+      })
       socket.on('removeUser', handleRemoveUser);
 
       return () => {
         socket.off('getUser', handleGetUser);
         socket.off('removeUser', handleRemoveUser);
+        socket.off('notification', handleNotification); 
+
       };
     }
   }, [isLoggedIn]);
+
 
   const userNavItems: NavItem[] = [
     { name: "Dashboard", logo: <FiGrid className="me-2 icon" />, link: '/' },
@@ -100,6 +122,9 @@ const Navbar: React.FC = () => {
     { name: "Dashboard", logo: <FiGrid className="me-2 icon" />, link: '/admin/' },
     { name: "Manage User", logo: <FiBook className="me-2 icon" />, link: '/admin/manage-user' },
     { name: "Manage Category", logo: <FiBook className="me-2 icon" />, link: '/admin/manage-category' },
+    { name: "User Posts", logo: <FiBook className="me-2 icon" />, link: '/admin/userposts' },
+    { name: "Freelancer Gigs", logo: <FiBook className="me-2 icon" />, link: '/admin/freelancergigs' },
+    { name: "Report", logo: <FiBook className="me-2 icon" />, link: '/admin/manage-reports' }
   ];
 
   const navItems = isAdminRoute ? adminNavItems : userNavItems;
@@ -111,8 +136,22 @@ const Navbar: React.FC = () => {
     navigate('/admin/login');
   };
 
+  const onAccept = async ()=>{
+    navigate('/message')
+    setIncomingCall(false)
+  }
+
+ 
+
+  const onDecline = ()=>{
+    socket.emit('videoDecline',{senderId:id,receiverId,name:`${user.firstName} ${user.secondName} declined your call`})
+    setIncomingCall(false)
+    setName('')
+    setReceiverId('')
+  }
+
   return (
-    <nav className="bg-white shadow-sm sticky top-0 w-full z-10">
+    <nav className="bg-white shadow-sm  sticky top-0 w-full z-10">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
         <div className="flex items-center">
           <Link to="/" className="text-xl font-bold">
@@ -145,7 +184,6 @@ const Navbar: React.FC = () => {
              
               {isNotificationOpen && (
               <NotificationDropdown
-              notifications={notifications}
               isNotificationOpen={isNotificationOpen}
               toggleNotification={toggleNotification}
             />
@@ -167,7 +205,11 @@ const Navbar: React.FC = () => {
           )}
         </div>
       </div>
+      {incomingCall &&(
+        <VideoCallNotification callerName={name??''} onDecline={onDecline} onAccept={onAccept}/>
+      )}
 
+   
       {isMenuOpen && (
         <div className="md:hidden">
           {navItems.map((item, index) => (

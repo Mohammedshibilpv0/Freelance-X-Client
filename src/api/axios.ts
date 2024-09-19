@@ -1,7 +1,8 @@
 import axios from "axios";
 import Swal from "sweetalert2";
+import { BACKENDENDPOINT } from "../utility/env";
 const axiosInstance = axios.create({
-  baseURL: "http://localhost:3000",
+  baseURL: BACKENDENDPOINT,
   // baseURL:'https://qnn863k8-3000.inc1.devtunnels.ms',
   withCredentials: true,
 });

@@ -17,8 +17,8 @@ const ProfileButton = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const logouthandle = () => {
-    logout();
     clearUser();
+    logout();
     navigate('/login');
   };
 

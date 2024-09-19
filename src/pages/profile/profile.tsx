@@ -6,10 +6,14 @@ import { useEffect, useRef, useState } from "react";
 import Editprofile from "./Mangeprofile";
 import { animateScroll as scroll } from "react-scroll";
 import ProjectListing from "./projectListing";
+import { useLocation } from "react-router-dom";
 
 const Profile = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isEdit = searchParams.get("stats") === "completeprofile";
   const user = Store((config) => config.user);
-  const [editUser, setEditUser] = useState<boolean>(false);
+  const [editUser, setEditUser] = useState<boolean>(isEdit);
   const editProfileRef = useRef<HTMLDivElement>(null);
   const [action,setAction]=useState<string>('myProject')
 
@@ -29,9 +33,9 @@ const Profile = () => {
   return (
     <section className="bg-gray-100 fade-in">
       <div className="container mx-auto py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-9 gap-6 px-4">
-          <div className="lg:col-span-3">
-            <article className="bg-white shadow rounded-lg p-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-9 gap-6 px-4 ">
+          <div className="lg:col-span-3 ">
+            <article className="bg-white shadow rounded-lg p-6 mb-6 ">
               <div className="flex justify-between items-center mb-6">
                 <h3 className="text-lg font-semibold">Profile</h3>
                 <p
@@ -100,26 +104,49 @@ const Profile = () => {
             </article>
           </div>
           <div className="lg:col-span-6 bg-white shadow rounded-lg p-6">
-            {editUser && (
+            {editUser? (
               <div ref={editProfileRef}>
                 <Editprofile
-                  title={"Edit Profile"}
+                  title={isEdit?'Complete the profile':`Edit Profile`}
                   setEditUser={setEditUser}
                   scrollToRef={editProfileRef}
                   handleeditUser={handleEditUser}
                 />
               </div>
-            )}
-            <div>
-              <div className="flex gap-6 ">
-              <p onClick={()=>setAction('myProject')}  className={action=="myProject"?"cursor-pointer text-blue-400":'cursor-pointer'}  >My Projects</p>
-              <p  onClick={()=>setAction('myRequest')} className={action=="myRequest"?"cursor-pointer text-blue-400":'cursor-pointer'}  >My Requsest</p>
-              <p onClick={()=>setAction('approved')}   className={action=="approved"?"cursor-pointer text-blue-400": 'cursor-pointer'}  >Approved</p>
+            ):(
+              <div>
+              <div className="flex flex-col sm:flex-row gap-6 sm:gap-6">
+                <p
+                  onClick={() => setAction('myProject')}
+                  className={`cursor-pointer ${action === 'myProject' ? 'text-blue-400' : 'text-gray-700'} mb-2 sm:mb-0`}
+                >
+                  My Projects
+                </p>
+                <p
+                  onClick={() => setAction('myRequest')}
+                  className={`cursor-pointer ${action === 'myRequest' ? 'text-blue-400' : 'text-gray-700'} mb-2 sm:mb-0`}
+                >
+                  My Requests
+                </p>
+                <p
+                  onClick={() => setAction('approved')}
+                  className={`cursor-pointer ${action === 'approved' ? 'text-blue-400' : 'text-gray-700'} mb-2 sm:mb-0`}
+                >
+                  Approved
+                </p>
+                <p
+                  onClick={() => setAction('myTransaction')}
+                  className={`cursor-pointer ${action === 'myTransaction' ? 'text-blue-400' : 'text-gray-700'} mb-2 sm:mb-0`}
+                >
+                  My Transactions
+                </p>
               </div>
               <div className="flex flex-wrap ms-2 items-center text-gray-700 bg-white">
-                <ProjectListing action={action}/>
+                <ProjectListing action={action} />
               </div>
             </div>
+            
+            )}
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ const HomeBanner = () => {
             Leverage our powerful tools to manage your projects and collaborate
             with experts worldwide.
           </p>
-          <form className="relative w-full flex items-center ">
+          {/* <form className="relative w-full flex items-center ">
             <input
               type="text"
               placeholder="Search Services"
@@ -35,7 +35,7 @@ const HomeBanner = () => {
             >
               Get
             </button>
-          </form>
+          </form> */}
         </div>
 
         <div className="hidden md:block md:w-1/2 mt-8 md:mt-0 justify-center md:justify-end">

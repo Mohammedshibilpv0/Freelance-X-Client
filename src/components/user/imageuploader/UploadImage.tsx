@@ -15,10 +15,8 @@ interface ImageUploaderProps {
 const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, onRemoveImage }) => {
     const fileInputRefs = [
         useRef<HTMLInputElement | null>(null),
-        useRef<HTMLInputElement | null>(null),
-        useRef<HTMLInputElement | null>(null),
     ];
-
+    const [uploadLoading,setUploadLoading]=useState<boolean>(false)
     const [loading, setLoading] = useState<boolean[]>([false, false, false]);
     const [crop, setCrop] = useState<Crop>({ aspect: 16 / 9 });
     const [src, setSrc] = useState<string | null>(null);
@@ -84,6 +82,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     const handleCropComplete = async () => {
         if (image && crop.width && crop.height) {
             try {
+                setUploadLoading(true)
                 const croppedBlob = await getCroppedImg(image, crop);
                 setLoading((prev) => {
                     const newLoading = [...prev];
@@ -95,14 +94,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                 data.append('image', croppedBlob, 'cropped_image.jpg');
 
                 const response = await postImage(data);
-                if (response && response.data) {
-                    const imageUrl = response.data.url;
+                if (response && response.url) {
+                    setUploadLoading(false)
+                    const imageUrl = response.url;
 
                     onImagesChange(currentIndex!, imageUrl);
                 }
             } catch (error) {
+                setUploadLoading(false)
                 console.error('Error uploading image:', error);
             } finally {
+                setUploadLoading(false)
                 setLoading((prev) => {
                     const newLoading = [...prev];
                     newLoading[currentIndex!] = false;
@@ -124,6 +126,11 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
         await handleCropComplete();
         handleModalClose();
     };
+    if(uploadLoading){
+        return (
+            <Loading/>
+        )
+    }
 
     return (
         <div className="flex gap-4">
@@ -170,7 +177,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     overlayClassName="fixed inset-0 bg-black bg-opacity-75"
     appElement={document.getElementById('root') || undefined}
 >
-    <div className="bg-white p-4 rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 h-4/5 max-h-full overflow-auto">
+    <div className="bg-white p-4 rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mt-5 overflow-auto">
         <h2 className="text-xl mb-4">Crop Image</h2>
         {src && (
             <ReactCrop

@@ -1,0 +1,12 @@
+
+.unseen-count-badge {
+    background-color: #f44336; 
+    color: white; 
+    border-radius: 50%; 
+    padding: 4px 8px;
+    font-size: 12px; 
+    position: absolute; 
+    top: 8px; 
+    right: 8px; 
+  }
+  

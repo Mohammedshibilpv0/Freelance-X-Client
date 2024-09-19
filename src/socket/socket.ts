@@ -1,12 +1,11 @@
 import { io, Socket } from "socket.io-client";
+import { BACKENDENDPOINT } from "../utility/env";
 
 export let socket: Socket;
 
 export const initializeSocket = () => {
   if (!socket) {
-    socket = io("http://localhost:3000");
-    // socket = io("https://qnn863k8-3000.inc1.devtunnels.ms");
-
+    socket = io(BACKENDENDPOINT);
     console.log("Socket initialized with id:", socket);
   }
 };

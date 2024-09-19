@@ -1,8 +1,8 @@
 import React, { useState, ChangeEvent, useEffect } from 'react';
 import { editProfileImage } from '../../api/user/userServices';
-import toastr from 'toastr';
 import Store from '../../store/store';
 import { FcEditImage } from 'react-icons/fc';
+import useShowToast from '../../Custom Hook/showToaster';
 
 const ImageProfile: React.FC = () => {
   const user = Store((config) => config.user);
@@ -11,6 +11,7 @@ const ImageProfile: React.FC = () => {
   const [changeImage, setChangeImage] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { updateUser } = Store();
+  const Toast=useShowToast()
 
   useEffect(() => {
     return () => {
@@ -24,7 +25,6 @@ const ImageProfile: React.FC = () => {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
 
-      // Revoke previous object URL to avoid memory leaks
       if (previewUrl) URL.revokeObjectURL(previewUrl);
 
       const objectUrl = URL.createObjectURL(selectedFile);
@@ -34,7 +34,7 @@ const ImageProfile: React.FC = () => {
 
   const handleUpload = async () => {
     if (!changeImage) {
-      toastr.error('Please select an image.');
+      Toast('Please select an image.','error',true);
       return;
     }
 
@@ -52,18 +52,17 @@ const ImageProfile: React.FC = () => {
     try {
       const response = await editProfileImage(formData);
       if (response.message) {
-        toastr.success(response.message);
+        Toast(response.message,'success',true)
         setPreviewUrl(response.url);
         updateUser('profile', response.url.trim());
 
-        // Reset file state and preview URL
         setFile(null);
         setChangeImage(false);
       } else {
-        toastr.error('An error occurred while uploading the image.');
+        Toast('An error occurred while uploading the image.','error',true);
       }
     } catch (error) {
-      toastr.error('An error occurred while uploading the image.');
+      Toast('An error occurred while uploading the image.','error',true);
     } finally {
       setIsLoading(false);
     }

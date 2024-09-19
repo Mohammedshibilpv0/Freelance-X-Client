@@ -1,8 +1,9 @@
 import axios from "axios";
+import { BACKENDENDPOINT } from "../utility/env";
 
 const axiosInstance = axios.create({
   withCredentials:true,
-  baseURL: `http://localhost:3000`,
+  baseURL: BACKENDENDPOINT,
 });
 
 axiosInstance.interceptors.request.use(

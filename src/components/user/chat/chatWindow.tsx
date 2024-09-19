@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { FaArrowLeft, FaArrowDown } from "react-icons/fa";
+import { FaArrowLeft, FaArrowDown, FaVideo } from "react-icons/fa";
 import Store from "../../../store/store";
 import { socket } from "../../../socket/socket";
 import { getMessage } from "../../../api/user/userServices";
@@ -13,6 +13,9 @@ import FileUploader from "./fileUpload";
 import ImageModal from "./viewImage";
 import ImageWithSkeleton from "./fileShowing";
 import { debounce } from 'lodash'
+import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { APPID, SERVERSECRET } from "../../../utility/env";
+
 interface ChatWindowProps {
   chat: {
     id: string;
@@ -43,6 +46,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   openUser,
   setFriends,
 }) => {
+  const user=Store((config)=>config.user)
   const userId = Store((config) => config.user._id) as string;
   const [receiverId, setReceiverId] = useState<string | null>(null);
   const [text, setText] = useState<string>("");
@@ -60,7 +64,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const [isRecording, setIsRecording] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState<boolean>(false);
-
+  const [isInCall, setIsInCall] = useState(false);
   const Toast = useShowToast();
   const users = Store((state) => state.user.users);
   const lastSeen = Store((state) => state.user.lastSeen);
@@ -201,6 +205,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             : users
         )
       );
+      socket.emit('sendNotification',{userId,receiverId,text:`You have new message from ${user.firstName} ${user.secondName}`,link:'/message'})
       setText("");
     }
   };
@@ -291,7 +296,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   const conversationId=chat.conversationId
   const stopTyping = debounce(() => {
     socket.emit('typing', { type: '', receiverId, conversationId });
-  }, 5000);
+  }, 2000);
   
   const handleText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setText(e.target.value);
@@ -304,13 +309,56 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
     socket.emit('typing', { type: 'typing...', receiverId, conversationId });
   };
 
+  const appID =Number(APPID)
+  const serverSecret = SERVERSECRET
+  const startVideoCall = async () => {
+    try {
+      const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+        appID,
+        serverSecret,
+        chat.conversationId, 
+        Date.now().toString(), 
+        user.firstName 
+      );
+  
+      const zp = ZegoUIKitPrebuilt.create(kitToken);
+  
+      zp.joinRoom({
+        container: document.getElementById('video-call-container'),
+        scenario: {
+          mode: ZegoUIKitPrebuilt.OneONoneCall,
+        },
+    
+        onJoinRoom: () => {
+      
+          socket.emit('videoCall', {
+            senderId: userId,
+            name: `${user.firstName} ${user.secondName}`,
+            receiverId,
+          });
+        },
+      });
+  
+      setIsInCall(true); 
+    } catch (error) {
+      console.error("Error starting video call:", error);
+    }
+  };
+  
+  
+  
+   
+  
+
   return (
     <div
       className="flex flex-col h-screen"
       style={{ height: "calc(100vh - 70px)" }}
       onClick={closeContextMenu}
     >
-      <div className="bg-gray-100 border-b p-4 flex items-center">
+       
+    <div className="bg-gray-100 border-b p-4 flex items-center justify-between">
+      <div className="flex items-center">
         <button onClick={goBack} className="text-gray-600 mr-4">
           <FaArrowLeft size={24} />
         </button>
@@ -321,28 +369,39 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
             </span>
           </div>
           <div>
-  <h2 className="text-lg font-semibold">
-    {chat.conversationId === typeConversation && isTyping ?  (
-      <div className="text-gray-500 text-sm mt-2">
-        {chat.firstName} is typing...
-      </div>
-    ) : (
-      <>
-        {chat.firstName} {chat.lastName}
-      </>
-    )}
-  </h2>
-  <p
-    className={`text-sm ${
-      isOnline ? "text-green-600" : "text-gray-500"
-    }`}
-  >
-    {isOnline ? "Online" : `Last seen: ${formatLastSeen(lastSeen)}`}
-  </p>
-</div>
-
+            <h2 className="text-lg font-semibold">
+              {chat.conversationId === typeConversation && isTyping ? (
+                <div className="text-gray-500 text-sm mt-2">
+                  {chat.firstName} is typing...
+                </div>
+              ) : (
+                <>
+                  {chat.firstName} {chat.lastName}
+                </>
+              )}
+            </h2>
+            <p className={`text-sm ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+              {isOnline ? "Online" : `Last seen: ${formatLastSeen(lastSeen)}`}
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Video call button */}
+      <button
+        onClick={startVideoCall}  // Add your video call function here
+        className="text-gray-600 bg-gray-200 p-2 rounded-full hover:bg-gray-300"
+        title="Start video call"
+      >
+        <FaVideo size={24} />
+      </button>
+      
+    </div>
+    {isInCall && (
+        <div id="video-call-container" className="w-full h-full bg-gray-800"></div>
+      )}
+
+
 
       <div ref={chatContainerRef} className="flex-1 overflow-auto p-4" onScroll={handleScroll}>
         {formattedMessages.map((msg, index) => (

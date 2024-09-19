@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import Register from "../pages/auth/register/register";
 import Login from "../pages/auth/login/login";
-import NavbarDefault from "../layout/navabr/navabar";
+import NavbarDefault from "../layout/navbar/navbar";
 import PrivateRoute from "./ClientProtectedRoute";
 import HomePage from "../pages/user/Home";
 import Profile from "../pages/profile/profile";
@@ -9,7 +9,6 @@ import { NotFound } from "../components/404/404";
 import ProjectDetailsPage from "../components/user/DetailProject/ProjectDetailsPage";
 import Explore from "../pages/user/Explore";
 import Chat from "../pages/user/Chat";
-import PaymentForm from "../components/payment/paymentForm";
 import SuccessPage from "../components/payment/successPage";
 import FailurePage from "../components/payment/failurePage";
 

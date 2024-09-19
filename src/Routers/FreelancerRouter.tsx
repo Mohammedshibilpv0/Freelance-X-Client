@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import NavbarDefault from "../layout/navabr/navabar";
+import NavbarDefault from "../layout/navbar/navbar";
 import Store from "../store/store";
 import PrivateRoute from "./ClientProtectedRoute";
 import HomePage from "../pages/user/Home";

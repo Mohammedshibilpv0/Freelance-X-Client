@@ -130,10 +130,10 @@ export const changePassword = async (email: string, password: string) => {
   }
 };
 
-export const google = async () => {
+export const googleAuth = async (userCredential:string) => {
   try {
-    const response = await axiosInstance.get("/auth/google");
-    console.log(response);
+    const response = await axiosInstance.post(`/user/auth/googleauth/${userCredential}`);
+    return response.data
   } catch (err) {
     console.log(err);
   }

@@ -182,3 +182,67 @@ export const deleteSubCategory = async(subCategoryId:string)=>{
     } 
   }
 }
+
+export const getUserPosts = async(page:number,limit:number)=>{
+   try{
+    const response = await axiosInstance.get(`/admin/userposts?page=${page}&limit=${limit}`)
+    return response.data
+   }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    } 
+   }
+}
+
+export const getFreelancerGigs = async(page:number,limit:number)=>{
+  try{
+   const response = await axiosInstance.get(`/admin/freelancerGig?page=${page}&limit=${limit}`)
+   return response.data
+  }catch(err){
+   const axiosError = err as AxiosError;
+   if (axiosError.response) {
+     return axiosError.response.data;
+   } 
+  }
+}
+
+export const updateBlockStatus = async (postId: string, isBlock: boolean) => {
+  const response = await axiosInstance.patch(`/admin/user-posts/block/${postId}`, {
+    isBlock: isBlock,
+  });
+  return response.data;
+};
+
+export const updateBlockStatusFreelancer = async (postId: string, isBlock: boolean) => {
+  const response = await axiosInstance.patch(`/admin/freelancer-gig/block/${postId}`, {
+    isBlock: isBlock,
+  });
+  return response.data;
+};
+
+export const reports = async(page:number,limit:number)=>{
+  try{
+   const response = await axiosInstance.get(`/admin/reports?page=${page}&limit=${limit}`)
+   return response.data
+  }catch(err){
+   const axiosError = err as AxiosError;
+   if (axiosError.response) {
+     return axiosError.response.data;
+   } 
+  }
+}
+
+
+export const dashboard=async()=>{
+  try{
+    const response= await axiosInstance.get('/admin/dashboard')
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    } 
+   
+  }
+}

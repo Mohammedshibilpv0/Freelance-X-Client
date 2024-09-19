@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import GoogleButton from "react-google-button";
 import {
   isValidateEmail,
   isValidatePassword,
@@ -11,6 +10,7 @@ import { userLogin } from "../../../api/user/AuthuserServices";
 import ForgetPassword from "../forgetpassword/forgetPassword";
 import Store from "../../../store/store";
 import useShowToast from "../../../Custom Hook/showToaster";
+import GoogleAuth from "../googleAuth/googleAuth";
 
 
 const Login: React.FC = () => {
@@ -83,6 +83,7 @@ const Login: React.FC = () => {
       const response = await userLogin(email, password);
       if (response.message) {
         setUser(response.userObject);
+        console.log(response.userObject)
         Toast(response.message,'success',true);
         setTimeout(() => navigate("/"), 1000);
       } else if (response.error) {
@@ -167,7 +168,7 @@ const Login: React.FC = () => {
               </p>
               <p className="text-center mt-4">or</p>
               <div className="flex justify-center mt-4">
-                <GoogleButton label="Continue with Google" />
+                    <GoogleAuth/>
               </div>
             </div>
           </form>

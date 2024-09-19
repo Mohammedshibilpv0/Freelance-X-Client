@@ -29,6 +29,7 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
     const [amount, setAmount] = useState<number | null>(null);
     const [name, setName] = useState<string | null>(null);
     const [id, setId] = useState<string | null | undefined>(null);
+    const [applicantId,setApplicantId]=useState<string|undefined|null>(null)
     const role = Store((config) => config.user.role);
     const currentUserId=Store((config) => config.user._id);
 
@@ -37,7 +38,8 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
         message: string,
         price: number,
         firstName: string | undefined,
-        secondName: string | undefined
+        secondName: string | undefined,
+        applicantsId:string|undefined
     ) => {
         const applicantName = `${firstName ?? ''} ${secondName ?? ''}`;
         setSelectedMessage(message);
@@ -45,6 +47,7 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
         setAmount(price);
         setName(applicantName);
         setShowDialog(true);
+        setApplicantId(applicantsId)
     };
 
     const closeModal = () => {
@@ -54,7 +57,7 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
 
     const handleSubmit = async () => {
         if (id) {
-            await changeStatus(id, role, 'Approved');
+            await changeStatus(id, role, 'Approved',amount??0);
     
             if (projectData && projectData.requests) {
                 const updatedRequests = projectData.requests.map((request) =>
@@ -70,8 +73,8 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
             setAmount(null);
             setName(null);
             setShowDialog(false);
-            const notification=`Your ${projectData.projectName} project is Approved please check your profile`
-            socket.emit('notification', { currentUserId, id, notification });
+            const text=`Your ${projectData.projectName} project is Approved please check your profile`
+            socket.emit('sendNotification', {userId: currentUserId, receiverId:applicantId,text,link:'/profile',type:'job' });
         }
     };
     
@@ -94,7 +97,7 @@ const ApplicantstaList: React.FC<ApplicantsListProps> = ({ applicantss,projectDa
                             </td>
                             <td className="px-4 py-2 border-b">
                                 <button 
-                                    onClick={() => handleViewClick(applicant._id,applicant.message,applicant.price,applicant.userId?.firstName,applicant.userId?.secondName)} 
+                                    onClick={() => handleViewClick(applicant._id,applicant.message,applicant.price,applicant.userId?.firstName,applicant.userId?.secondName,applicant.userId?._id)} 
                                     className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600"
                                 >
                                     View

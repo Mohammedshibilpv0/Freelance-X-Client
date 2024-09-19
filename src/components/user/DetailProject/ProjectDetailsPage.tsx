@@ -7,12 +7,13 @@ import {
   makePayemnt,
 } from "../../../api/user/userServices";
 import Carousal from "../Carousal/Carousal";
-import Loading from "../../../style/loading";
 import UserDetails from "./userDetails";
 import ApplicantstaList from "./applicantstaList";
 import Store from "../../../store/store";
 import PaymentForm from "../../payment/paymentForm";
 import moment from 'moment';
+import EmptyData from "../empty/Empty";
+import { STRIPEKEY } from "../../../utility/env";
 
 interface Category {
   _id: string;
@@ -47,6 +48,7 @@ export interface projectModule{
 }
 
 export interface IProject {
+  _id:string;
   projectName: string;
   description: string;
   skills: string[];
@@ -65,6 +67,7 @@ export interface IProject {
   paymentAmount?:string
   userId: string;
   status:string
+  isDelete?:boolean
   modules:projectModule[]
 }
 
@@ -83,6 +86,7 @@ const ProjectDetailsPage: React.FC = () => {
   const email = Store((config) => config.user.email);
 
   useEffect(() => {
+    console.log('heloooo')
     async function fetchData() {
       try {
         let response;
@@ -115,7 +119,7 @@ const ProjectDetailsPage: React.FC = () => {
   if (!projectData) {
     return (
       <div className="flex items-center justify-center mt-72">
-        {isNotFound ? <h1>Cannot find post</h1> : <Loading />}
+        {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
       </div>
     );
   }
@@ -150,7 +154,7 @@ const ProjectDetailsPage: React.FC = () => {
 
   const handlePay =async (data:projectModule,projectData:IProject)=>{
     try{
-      const stripe= await loadStripe('pk_test_51Pt0RTP3OhBjO920psdCwPtQaUFlZwyAX9G0ohQtWzjBbBexmwGe2LknhxnWCXKQJ8RpDEDfpa5zJ5CRJugXDlMp00dIusHm3e')
+      const stripe= await loadStripe(STRIPEKEY??'')
       const response= await makePayemnt(data,projectData)
 
       const result=await stripe?.redirectToCheckout({
@@ -306,7 +310,7 @@ const ProjectDetailsPage: React.FC = () => {
                     <h2 className="text-lg font-medium">Module {index + 1}</h2>
                     <p className="text-sm text-gray-600">{module.heading}</p>
                     <p className="text-sm text-gray-600">
-                      {moment(module.date).format('MMMM Do YYYY, h:mm:ss a')}
+                      {moment(module.date).format('MMMM Do YYYY')}
                     </p>
                     <p className="text-sm text-gray-600">Payment Amount : ${module.amount}</p>
                     <div className="flex items-center mt-2">

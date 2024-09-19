@@ -5,9 +5,9 @@ import { FormValues } from "../../pages/user/CreateGig";
 import { IProject, projectModule } from "../../components/user/DetailProject/ProjectDetailsPage";
 
 interface PostImageResponse {
-  data: {
+  
     url: string;
-  };
+
 }
 
 export const editUserProfile = async (Data: object) => {
@@ -185,12 +185,30 @@ export const getClientPostById = async (id: string | undefined,request:boolean=f
   }
 };
 
-export const posts = async (page: number = 1, limit: number = 2) => {
+interface filter{
+searchTerm?:string
+sortBy?:string
+sortOrder?:string
+category?:string
+subcategory?:string
+}
+
+export const posts = async (page: number = 1, limit: number = 2,active:filter) => {
+    const serch= active.searchTerm
+    const sortBy= active.sortBy
+    const sortOrder= active.sortOrder
+    const category=active.category
+    const subCategory=active.subcategory
   try {
     const response = await axiosInstance.get("/client/posts", {
       params: {
         page,
         limit,
+        sortBy,
+        sortOrder,
+        serch,
+        category,
+        subCategory
       },
     });
     return response.data;
@@ -202,12 +220,23 @@ export const posts = async (page: number = 1, limit: number = 2) => {
   }
 };
 
-export const gigs = async (page: number = 1, limit: number = 2) => {
+
+export const gigs = async (page: number = 1, limit: number = 2,active:filter) => {
+  const serch= active.searchTerm
+  const sortBy= active.sortBy
+  const sortOrder= active.sortOrder
+  const category=active.category
+  const subCategory=active.subcategory
   try {
     const response = await axiosInstance.get("/freelancer/gig", {
       params: {
         page,
         limit,
+        sortBy,
+        sortOrder,
+        serch,
+        category,
+        subCategory
       },
     });
     return response.data;
@@ -218,6 +247,8 @@ export const gigs = async (page: number = 1, limit: number = 2) => {
     }
   }
 };
+
+
 
 export const findUser = async (id: string) => {
   try {
@@ -255,9 +286,9 @@ export const requstingProject = async (
 
 
 
-export const changeStatus = async(id:string,role:string,status:string)=>{
+export const changeStatus = async(id:string,role:string,status:string,amount:number)=>{
   try{
-    const response=await axiosInstance.put(`/${role.toLocaleLowerCase()}/projectstatus/${id}/${status}`)
+    const response=await axiosInstance.put(`/${role.toLocaleLowerCase()}/projectstatus/${id}/${status}`,{amount})
     return response.data
   }catch(err){
     const axiosError = err as AxiosError;
@@ -427,5 +458,68 @@ export const paymentSuccess =async(token:string,id:string,amount:string,isPost:s
     if (axiosError.response) {
       return axiosError.response.data;
     }
+  }
+}
+
+export const myNotifications = async (id:string)=>{
+  try{
+    const response= await axiosInstance.get(`/user/notifications/${id}`)
+    console.log(response)
+    return response.data.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+export const myTransaction = async(userId:string,page:number, limit:number)=>{
+  try{
+    const response = await axiosInstance.get(`/user/transaction/${userId}`, {
+      params: {
+        page,
+        limit,
+      },
+    })
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+export const reportUser = async (userId:string,reason:string,senderUserId:string,customReason:string|null)=>{
+  try{
+    const data={
+      reportedUserId:senderUserId,
+      reporterUserId:userId,
+      reason:reason,
+      customReason: customReason || "" 
+    }
+    const response= await axiosInstance.post(`/user/reportuser/`,{data})
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+}
+
+
+export const deleteProject = async (role:string,projectId:string)=>{
+  try{
+    const setRole=role.toLocaleLowerCase()
+    const response= await axiosInstance.put(`${setRole}/deleteproject/${projectId}`)
+    return response.data
+  }catch(err){
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+   
   }
 }
