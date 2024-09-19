@@ -2,7 +2,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { BACKENDENDPOINT } from "../utility/env";
 const axiosInstance = axios.create({
-  baseURL: BACKENDENDPOINT,
+  baseURL: 'https://freelancex.site/',
   // baseURL:'https://qnn863k8-3000.inc1.devtunnels.ms',
   withCredentials: true,
 });
