@@ -40,7 +40,6 @@ const UserDetails: React.FC<prop> = ({
   matchingRequest = null,
 }) => {
   const currentUserId = Store((config) => config.user._id);
-  // const [users, setUsers] = useState<IFriend[]>([]);
   const [user, setUser] = useState<userType | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalOpenRequest,setIsModalOpenRequest]= useState(false);
@@ -73,15 +72,6 @@ const UserDetails: React.FC<prop> = ({
         try {
           const data = await findMyFriends(myId);
           if (data.list) {
-            // setUsers((prevUsers) => {
-            //   const existingUserIds = new Set(prevUsers.map((user) => user.id));
-            //   const newUsers = data.list.friends.filter(
-            //     (friend: IFriend) => !existingUserIds.has(friend.id)
-            //   );
-
-            //   return [...prevUsers, ...newUsers];
-            // });
-
             const isConnected = data.list.friends.find(
               (friend: IFriend) => friend.id === id
             );
@@ -109,7 +99,6 @@ const UserDetails: React.FC<prop> = ({
   }, []);
 
   const handleInitialMessage = (data: {id: string, firstName: string, lastName: string, conversationId: string, unseenMessagesCount: number}) => {
-    // setUsers((prevMessages) => [...prevMessages, data]);
     setIsUserConnected(data);
   }
 

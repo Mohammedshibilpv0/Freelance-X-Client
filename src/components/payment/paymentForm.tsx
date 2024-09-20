@@ -67,53 +67,53 @@ const PaymentForm:React.FC<Prop> = ({projectId,isUserPost,setProjectData,amount}
 
     
 
-    // const validateForm = () => {
-    //     const errors: string[] = [];
-    //     const today = new Date();
+     const validateForm = () => {
+        const errors: string[] = [];
+        const today = new Date();
 
-    //     if (!totalAmount || totalAmount <= 0) {
-    //         errors.push('Total Amount is required and must be greater than zero.');
-    //     }
+        if (!totalAmount || totalAmount <= 0) {
+            errors.push('Total Amount is required and must be greater than zero.');
+        }
 
-    //     if (numModules <= 0 || numModules > maxModules) {
-    //         errors.push(`Number of modules must be between 1 and ${maxModules}.`);
-    //     }
+        if (numModules <= 0 || numModules > maxModules) {
+            errors.push(`Number of modules must be between 1 and ${maxModules}.`);
+        }
 
-    //     let lastModuleDate: Date | null = null;
-    //     modules.forEach((module, index) => {
-    //         if (!module.heading) {
-    //             errors.push(`Module ${index + 1} heading is required.`);
-    //         }
+        let lastModuleDate: Date | null = null;
+        modules.forEach((module, index) => {
+            if (!module.heading) {
+                errors.push(`Module ${index + 1} heading is required.`);
+            }
 
-    //         if (!module.date) {
-    //             errors.push(`Module ${index + 1} date is required.`);
-    //         } else {
-    //             const moduleDate = new Date(module.date);
-    //             if (moduleDate <= today) {
-    //                 errors.push(`Module ${index + 1} date must be in the future.`);
-    //             }
+            if (!module.date) {
+                errors.push(`Module ${index + 1} date is required.`);
+            } else {
+                const moduleDate = new Date(module.date);
+                if (moduleDate <= today) {
+                    errors.push(`Module ${index + 1} date must be in the future.`);
+                }
 
-    //             if (lastModuleDate) {
-    //                 const timeDifference = Math.abs(moduleDate.getTime() - lastModuleDate.getTime());
-    //                 const dayDifference = timeDifference / (1000 * 3600 * 24);
-    //                 if (dayDifference < 4) {
-    //                     errors.push(`Module ${index} and Module ${index + 1} dates must be at least 4 days apart.`);
-    //                 }
-    //             }
+                if (lastModuleDate) {
+                    const timeDifference = Math.abs(moduleDate.getTime() - lastModuleDate.getTime());
+                    const dayDifference = timeDifference / (1000 * 3600 * 24);
+                    if (dayDifference < 4) {
+                        errors.push(`Module ${index} and Module ${index + 1} dates must be at least 4 days apart.`);
+                    }
+                }
 
-    //             lastModuleDate = moduleDate;
-    //         }
-    //     });
+                lastModuleDate = moduleDate;
+            }
+        });
 
-    //     return errors;
-    // };
+        return errors;
+    };
 
     const handleSubmit = async() => {
-        // const errors = validateForm();
-        // if (errors.length > 0) {
-        //     setFormErrors(errors);
-        //     return;
-        // }
+        const errors = validateForm();
+        if (errors.length > 0) {
+            setFormErrors(errors);
+            return;
+        }
         let response
        if(isUserPost){
          response= await setModuleClientPost(projectId,modules)

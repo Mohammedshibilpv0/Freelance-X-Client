@@ -275,7 +275,11 @@ const ProjectDetailsPage: React.FC = () => {
         <UserDetails id={projectData.userId} projectId={id} matchingRequest={matchingRequest} />
       ) : (
         approvedUser && approvedUser?.userId?._id ? (
+          <>
           <UserDetails id={role=='freelancer'?projectData.userId:approvedUser.userId._id} projectId={projectData.projectName} matchingRequest={null} />
+          <p>{role=='freelancer'?projectData.userId:approvedUser.userId._id}</p>
+          </>
+          
         ) : (
           <ApplicantstaList applicantss={projectData.requests} projectData={projectData} setProjectData={setProjectData} />
         )
