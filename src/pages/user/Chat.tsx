@@ -114,7 +114,7 @@ const ChatPage = () => {
   return (
     <div className="flex h-screen " style={{ height: 'calc(100vh - 70px)' }}>
       <div className="flex flex-col md:flex-row w-full">
-        <div className={`md:w-1/4 w-full bg-gray-100 border-r md:border-r-0 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`md:w-96 w-full bg-gray-100 border-r md:border-r-0 ${selectedChat ? 'hidden md:flex' : 'flex'}`}>
           <Sidebar chats={transformToChats(users)} onSelectChat={handleSelectChat} setChats={setUsers}/>
         </div>
 
