@@ -80,15 +80,15 @@ const ProjectDetailsPage: React.FC = () => {
   const freelancer = searchParams.get("freelancer") === "true";
   const request = searchParams.get("request") === "true";
   const client = searchParams.get("client") === "true";
-
+  const [loading,setLoading] =useState<boolean>(false)
   const [projectData, setProjectData] = useState<IProject | null>(null);
   const [isNotFound, setIsNotFound] = useState<boolean>(false);
   const email = Store((config) => config.user.email);
 
   useEffect(() => {
-    console.log('heloooo')
     async function fetchData() {
       try {
+        setLoading(true)
         let response;
         if (myProject) {
           if (freelancer && id) {
@@ -108,8 +108,10 @@ const ProjectDetailsPage: React.FC = () => {
           }
         }
         setProjectData(response.data);
+        setLoading(false)
       } catch (error) {
         console.log("Error fetching project data:", error);
+        setLoading(false)
       }
     }
 
@@ -262,7 +264,7 @@ const ProjectDetailsPage: React.FC = () => {
         <UserDetails id={projectData.userId} projectId={id} matchingRequest={matchingRequest} />
       ) : (
         approvedUser && approvedUser?.userId?._id ? (
-          <UserDetails id={approvedUser.userId._id} projectId={projectData.projectName} matchingRequest={null} />
+          <UserDetails id={role=='freelancer'?projectData.userId:approvedUser.userId._id} projectId={projectData.projectName} matchingRequest={null} />
         ) : (
           <ApplicantstaList applicantss={projectData.requests} projectData={projectData} setProjectData={setProjectData} />
         )
