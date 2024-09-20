@@ -118,6 +118,14 @@ const ProjectDetailsPage: React.FC = () => {
     fetchData();
   }, [freelancer, client, id, myProject, request]);
 
+  if(loading){
+    return (
+      <div className="flex items-center justify-center mt-72">
+        {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
+      </div>
+    );
+  }
+  
   if (!projectData) {
     return (
       <div className="flex items-center justify-center mt-72">
@@ -125,6 +133,8 @@ const ProjectDetailsPage: React.FC = () => {
       </div>
     );
   }
+
+  
 
   const formatNumber = (num: number): string => {
     if (num >= 1_000_000) {
