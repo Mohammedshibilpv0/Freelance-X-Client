@@ -107,11 +107,13 @@ const Transaction = () => {
             </table>
         </div>
          <div className="mt-4">
-         <Pagination
-             currentPage={currentPage}
-             totalPages={totalTransactions}
-             onPageChange={handlePageChange}
-         />
+         {transactions.length!==0&&(
+            <Pagination
+            currentPage={currentPage}
+            totalPages={totalTransactions}
+            onPageChange={handlePageChange}
+        />
+         )}
      </div>
      </>
   );
