@@ -14,6 +14,7 @@ import PaymentForm from "../../payment/paymentForm";
 import moment from 'moment';
 import EmptyData from "../empty/Empty";
 import { STRIPEKEY } from "../../../utility/env";
+import Loading from "../../../style/loading";
 
 interface Category {
   _id: string;
@@ -121,18 +122,18 @@ const ProjectDetailsPage: React.FC = () => {
   if(loading){
     return (
       <div className="flex items-center justify-center mt-72">
-        {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
+        <Loading/>
       </div>
     );
-  }else if(!projectData){
+  }
+
+  if (!projectData) {
     return (
       <div className="flex items-center justify-center mt-72">
         {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
       </div>
     );
   }
-
- 
 
   
 
