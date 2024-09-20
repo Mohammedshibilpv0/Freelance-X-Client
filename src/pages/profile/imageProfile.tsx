@@ -40,11 +40,13 @@ const ImageProfile: React.FC = () => {
 
     if (!file) return;
 
-    const userData = localStorage.getItem('userProfile');
+    const userProfile:any = localStorage.getItem('userProfile');
+    const userData=JSON.parse(userProfile)
     const formData = new FormData();
     formData.append('file', file);
     if (userData) {
-      formData.append('Data', userData);
+      console.log(userData.email)
+      formData.append('Data', userData.email);
     }
 
     setIsLoading(true);
