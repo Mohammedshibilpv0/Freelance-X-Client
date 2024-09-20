@@ -276,7 +276,7 @@ const ProjectDetailsPage: React.FC = () => {
       ) :( approvedUser && approvedUser.userId?._id ? (
         <UserDetails 
           id={role === 'Freelancer' ? projectData.userId : approvedUser.userId._id} 
-          projectId={id} 
+          projectId={projectData.projectName} 
           matchingRequest={null} 
         />
       ) : (
