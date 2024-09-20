@@ -387,9 +387,8 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         </div>
       </div>
 
-      {/* Video call button */}
       <button
-        onClick={startVideoCall}  // Add your video call function here
+        onClick={startVideoCall}  
         className="text-gray-600 bg-gray-200 p-2 rounded-full hover:bg-gray-300"
         title="Start video call"
       >
@@ -498,43 +497,49 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         </button>
       )}
 
-      <div className="bg-gray-100 p-2 flex items-center">
-        {userId && receiverId && (
-          <>
-            <AudioMessage
-              setFriends={setFriends}
-              isRecording={isRecording}
-              setIsRecording={setIsRecording}
-              receiverId={receiverId}
-              senderId={userId}
-              setMessages={setMessages}
-            />
-          </>
-        )}
-        {!isRecording && (
-          <>
-            <FileUploader
-            setFriends={setFriends}
-              senderId={userId}
-              receiverId={receiverId ?? ""}
-              setMessages={setMessages}
-            />
-            <input
-              type="text"
-              className="flex-1 border p-2 rounded-lg"
-              placeholder="Type a message..."
-              value={text}
-              onChange={(e) => handleText(e)}
-            />
-            <button
-              onClick={handleSubmission}
-              className="ml-4 bg-blue-500 text-white p-2 rounded-lg"
-            >
-              Send
-            </button>
-          </>
-        )}
+<div className="bg-gray-100 p-2 flex flex-col md:flex-row items-center">
+  {!isRecording && (
+    <input
+      type="text"
+      className="border p-2 rounded-lg w-full mb-2 md:mb-0 md:flex-1"
+      placeholder="Type a message..."
+      value={text}
+      onChange={(e) => handleText(e)}
+    />
+  )}
+
+  {userId && receiverId && (
+    <div className="flex items-center w-full md:w-auto justify-between md:space-x-2">
+      {/* Voice and Attach Buttons */}
+      <div className="flex items-center space-x-1">
+        <AudioMessage
+          setFriends={setFriends}
+          isRecording={isRecording}
+          setIsRecording={setIsRecording}
+          receiverId={receiverId}
+          senderId={userId}
+          setMessages={setMessages}
+        />
+
+        <FileUploader
+          setFriends={setFriends}
+          senderId={userId}
+          receiverId={receiverId ?? ""}
+          setMessages={setMessages}
+        />
       </div>
+
+      {/* Send Button */}
+      <button
+        onClick={handleSubmission}
+        className="bg-blue-500 text-white p-2 rounded-lg ml-auto"
+      >
+        Send
+      </button>
+    </div>
+  )}
+</div>
+
     </div>
   );
 };
