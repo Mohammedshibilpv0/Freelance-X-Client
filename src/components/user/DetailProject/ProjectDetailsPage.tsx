@@ -124,15 +124,15 @@ const ProjectDetailsPage: React.FC = () => {
         {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
       </div>
     );
-  }
-  
-  if (!projectData) {
+  }else if(!projectData){
     return (
       <div className="flex items-center justify-center mt-72">
         {isNotFound ? <h1>Cannot find post</h1> : <EmptyData/>}
       </div>
     );
   }
+
+ 
 
   
 
