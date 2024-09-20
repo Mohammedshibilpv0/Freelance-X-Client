@@ -22,6 +22,7 @@ import { FiEdit, FiTrash } from "react-icons/fi";
 import useShowToast from "../../Custom Hook/showToaster";
 import { IProject } from "../../components/user/DetailProject/ProjectDetailsPage";
 import DeleteConfirmationModal from "../../components/user/DeleteConfirmationModal/DeleteConfirmationModal";
+import Loading from "../../style/loading";
 
 interface Prop {
   action: string;
@@ -149,6 +150,14 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
     navigate(url);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[85vh] w-full">
+       <Loading/>
+      </div>
+    );
+  }
+
   if (isEmpty) {
     return (
       <div className="flex items-center justify-center h-[85vh] w-full">
@@ -156,13 +165,7 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
       </div>
     );
   }
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-[85vh] w-full">
-        <EmptyData />
-      </div>
-    );
-  }
+ 
 
   return (
     <div>
