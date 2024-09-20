@@ -28,7 +28,7 @@ const ClientRouter = () => {
           path="/login"
           element={<PrivateRoute element={Login} isAuthRoute={true} />}
         />
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={ <PrivateRoute element={HomePage} isAuthRoute={false} />} />
         <Route path="/profile" element={ <PrivateRoute element={Profile} isAuthRoute={false} />} /> 
         <Route path="/projectdetail/:id" element={<PrivateRoute element={ProjectDetailsPage} isAuthRoute={false} />} />
         <Route path="/explore" element={<PrivateRoute element={Explore} isAuthRoute={false} />} />
