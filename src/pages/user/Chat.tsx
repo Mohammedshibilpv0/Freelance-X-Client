@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Sidebar from '../../components/user/chat/sidebar'; 
 import ChatWindow from '../../components/user/chat/chatWindow'; 
 import { socket } from '../../socket/socket';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Store from '../../store/store';
 import { findMyFriends } from '../../api/user/userServices';
 
@@ -34,8 +34,8 @@ const ChatPage = () => {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const id = searchParams.get('_id');
+  const navigate = useNavigate();
   const conversationId = searchParams.get('conversation') || '';
-
   const [users, setUsers] = useState<IFriend[]>([]);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [openedUser, setOpenedUser] = useState<string | null>(null);
@@ -108,6 +108,7 @@ const ChatPage = () => {
   const goBack = () => {
     setSelectedChat(null);
     setOpenedUser(null);
+    navigate(location.pathname, { replace: true });
   };
 
   return (
