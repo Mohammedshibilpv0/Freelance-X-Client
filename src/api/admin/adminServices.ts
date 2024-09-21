@@ -45,9 +45,14 @@ export const manageUser = async (action: string, email: string) => {
 };
 
 
-export const addCategory= async(name:string,description:string)=>{
+export const addCategory= async(formData:FormData)=>{
     try{
-        const response= await axiosInstance.post('/admin/category',{name,description})      
+        const response= await axiosInstance.post('/admin/category',formData,{
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          }
+        }
+        )      
         return response.data
     }catch(err){
       const axiosError = err as AxiosError;
@@ -85,10 +90,15 @@ export const fetchCategoryById=async(categoryid:string|undefined|null)=>{
 }
 
 
-export const updateCategory= async(categoryId:string,name:string,description:string)=>{
+
+export const updateCategory= async(categoryId:string,formData:FormData)=>{
   try{
 
-    const response=await axiosInstance.put('/admin/category',{categoryId,name,description})
+    const response=await axiosInstance.put(`/admin/category/${categoryId}`,formData,{
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    })
     return response.data
 
   }catch(err){

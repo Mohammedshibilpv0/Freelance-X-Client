@@ -16,9 +16,6 @@ interface NavItem {
   link: string;
 }
 
-
-
-
 const Navbar: React.FC = () => {
   const user = Store((config) => config.user);
   const addUsers = Store();

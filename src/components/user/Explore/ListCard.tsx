@@ -34,7 +34,7 @@ const ListCard:React.FC<prop> = ({ filters }) => {
       setLoading(true);
       try {
         const activeFilters = { ...filters };
-        if (!activeFilters.category) delete activeFilters.category;
+        // if (!activeFilters.category) delete activeFilters.category;
         if (!activeFilters.subcategory) delete activeFilters.subcategory;
     
         const response = role === 'Client'

@@ -4,8 +4,10 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { isValidateEmail, isValidatePassword } from '../../utility/Validator';
 import { adminLogin } from '../../api/admin/adminServices';
 import useShowToast from '../../Custom Hook/showToaster';
+import useAdminStore from '../../store/adminStore';
 
 const AdminLogin: React.FC = () => {
+  const adminEmail = useAdminStore((state) => state.setAdminEmail);
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -54,8 +56,9 @@ const AdminLogin: React.FC = () => {
             Toaster(response.error.error,'error',true)
         }
         if(response.message){
+          adminEmail(email)
           Toaster(response.message,'success',true)
-            navigate('/admin')
+          navigate('/admin')
         }
       
     } catch (error) {

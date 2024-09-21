@@ -166,8 +166,6 @@ const WhatsAppVoiceRecorder: React.FC<Props> = ({
       <div className="relative mb-2 flex">
         <button
           onClick={toggleRecording}
-          onTouchStart={startRecording}
-          onTouchEnd={stopRecording}
           className={`w-10 mt-2 h-10 rounded-full flex items-center justify-center text-white transition-colors duration-300 ${
             isRecording ? 'bg-red-500' : 'bg-blue-500'
           }`}

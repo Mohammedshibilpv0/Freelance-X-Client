@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import ListCard from "../../components/user/Explore/ListCard";
 import SideBar from "../../components/user/Explore/sideBar"; 
 import useShowToast from "../../Custom Hook/showToaster";
@@ -7,14 +8,18 @@ import { socket } from "../../socket/socket";
 
 const Explore: React.FC = () => {
     const toast = useShowToast();
-    const [loading,setLoading]=useState<boolean>(false)
+    const location = useLocation();
+    const query = new URLSearchParams(location.search);
+    const categoryId = query.get('categoryId');
+    
+    const [loading, setLoading] = useState<boolean>(false);
     const myId = Store((c) => c.user._id);
     
     const [filters, setFilters] = useState({
         searchTerm: '',
         sortBy: 'name',
         sortOrder: 'asc',
-        category: undefined,
+        category: categoryId, // Use the category ID from the URL
         subcategory: undefined,
     });
 
@@ -24,29 +29,23 @@ const Explore: React.FC = () => {
             return;
         }
 
-        console.log("Socket is connected:", socket.connected); 
-
         socket.on("notification", (notification) => {
-            console.log("Notification received:", notification); 
-
-            const {  receiver, text } = notification;
+            const { receiver, text } = notification;
 
             if (myId === receiver) {
-                console.log("Notification matches user ID. Displaying toast:", text);
                 toast(text, "success", true);
             }
         });
 
         return () => {
-            console.log("Cleaning up socket event listener");
             socket.off("notification");
         };
     }, [myId, toast]);
 
-    const updateFilters = (newFilters:any) => {
-        setFilters(prevFilters => ({
+    const updateFilters = (newFilters: any) => {
+        setFilters((prevFilters) => ({
             ...prevFilters,
-            ...newFilters
+            ...newFilters,
         }));
     };
 

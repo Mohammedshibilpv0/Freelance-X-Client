@@ -115,6 +115,10 @@ const UserDetails: React.FC<prop> = ({
     setIsModalOpenRequest(true);
   };
 
+ const handleCloseRequest=()=>{
+  setIsModalOpenRequest(false);
+ }
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setErrorMessage("");
@@ -261,7 +265,7 @@ const UserDetails: React.FC<prop> = ({
             <div className="flex justify-end space-x-2">
               <button
                 className="px-4 py-2 bg-gray-500 text-white rounded-md"
-                onClick={handleCloseModal}
+                onClick={handleCloseRequest}
               >
                 Cancel
               </button>

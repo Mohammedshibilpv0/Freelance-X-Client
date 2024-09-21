@@ -11,6 +11,7 @@ interface Category {
   _id: string;
   name: string;
   description: string;
+  image?:string
 }
 
 interface CategoryTableProps {
@@ -89,6 +90,14 @@ const CategoryTable = ({ onCategoryUpdate }: CategoryTableProps) => {
   };
 
   const columns = [
+    {
+      header: 'Image',
+      accessor: (category: Category) =>(<img 
+        src={category.image} 
+        alt={category.name} 
+        className="h-16 w-16 object-cover"
+      />),
+    },
     {
       header: 'Name',
       accessor: (category: Category) => `${category.name}`,

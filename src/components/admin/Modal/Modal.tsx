@@ -1,23 +1,22 @@
-import Loading from "../../../style/loading";
 
 interface ModalField {
   label: string;
-  type: 'text' | 'select';
+  type: 'text' | 'select' | 'file'; 
   name: string;
-  value: string;
+  value?: string; // Make value optional
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
   options?: { label: string; value: string }[];
 }
-
 interface ModalProp {
   toggleModal: () => void;
   title: string;
   fields: ModalField[];
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   loading: boolean;
+  children?: React.ReactNode; // Add children prop
 }
 
-const Modal: React.FC<ModalProp> = ({ toggleModal, title, fields, onSubmit, loading }) => {
+const Modal: React.FC<ModalProp> = ({ toggleModal, title, fields, onSubmit, loading, children }) => {
   return (
     <div>
       <div
@@ -69,7 +68,7 @@ const Modal: React.FC<ModalProp> = ({ toggleModal, title, fields, onSubmit, load
                         type={field.type}
                         name={field.name}
                         id={field.name}
-                        value={field.value}
+                        value={field.value} // This is okay for text inputs
                         onChange={field.onChange}
                         className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                         placeholder={`Enter ${field.label.toLowerCase()}`}
@@ -79,7 +78,7 @@ const Modal: React.FC<ModalProp> = ({ toggleModal, title, fields, onSubmit, load
                       <select
                         name={field.name}
                         id={field.name}
-                        value={field.value}
+                        value={field.value} // This is okay for select inputs
                         onChange={field.onChange}
                         className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                       >
@@ -90,23 +89,29 @@ const Modal: React.FC<ModalProp> = ({ toggleModal, title, fields, onSubmit, load
                         ))}
                       </select>
                     )}
+                    {field.type === 'file' && (
+                      <input
+                        type="file"
+                        name={field.name}
+                        id={field.name}
+                        onChange={field.onChange}
+                        className="bg-gray-50 border border-gray-300 text-black text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                      />
+                    )}
                   </div>
                 ))}
+                {children} {/* Render children here for the image preview */}
                 <button
                   type="submit"
                   className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                  disabled={loading}
                 >
-                  Save
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
           </div>
         </div>
-        {loading && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <Loading />
-          </div>
-        )}
       </div>
     </div>
   );

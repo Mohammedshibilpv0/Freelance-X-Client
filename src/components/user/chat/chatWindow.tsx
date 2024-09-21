@@ -529,13 +529,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         />
       </div>
 
-      {/* Send Button */}
-      <button
+      {!isRecording &&(
+        <button
         onClick={handleSubmission}
         className="bg-blue-500 text-white p-2 rounded-lg ml-auto"
       >
         Send
       </button>
+      )}
     </div>
   )}
 </div>
