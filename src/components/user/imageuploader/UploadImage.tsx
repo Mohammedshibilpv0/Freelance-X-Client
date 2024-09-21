@@ -16,13 +16,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     const fileInputRefs = [
         useRef<HTMLInputElement | null>(null),
     ];
-    const [uploadLoading,setUploadLoading]=useState<boolean>(false)
+    const [uploadLoading, setUploadLoading] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean[]>([false, false, false]);
     const [crop, setCrop] = useState<Crop>({ aspect: 16 / 9 });
     const [src, setSrc] = useState<string | null>(null);
     const [image, setImage] = useState<HTMLImageElement | null>(null);
     const [currentIndex, setCurrentIndex] = useState<number | null>(null);
     const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+    const [isCropValid, setIsCropValid] = useState<boolean>(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
         if (e.target.files && e.target.files[0]) {
@@ -82,7 +83,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
     const handleCropComplete = async () => {
         if (image && crop.width && crop.height) {
             try {
-                setUploadLoading(true)
+                setUploadLoading(true);
                 const croppedBlob = await getCroppedImg(image, crop);
                 setLoading((prev) => {
                     const newLoading = [...prev];
@@ -95,16 +96,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
 
                 const response = await postImage(data);
                 if (response && response.url) {
-                    setUploadLoading(false)
+                    setUploadLoading(false);
                     const imageUrl = response.url;
 
                     onImagesChange(currentIndex!, imageUrl);
                 }
             } catch (error) {
-                setUploadLoading(false)
+                setUploadLoading(false);
                 console.error('Error uploading image:', error);
             } finally {
-                setUploadLoading(false)
+                setUploadLoading(false);
                 setLoading((prev) => {
                     const newLoading = [...prev];
                     newLoading[currentIndex!] = false;
@@ -126,10 +127,20 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
         await handleCropComplete();
         handleModalClose();
     };
-    if(uploadLoading){
+
+    // Disable the submit button if crop dimensions are invalid (i.e., no crop selected)
+    React.useEffect(() => {
+        if (crop.width && crop.height) {
+            setIsCropValid(true);
+        } else {
+            setIsCropValid(false);
+        }
+    }, [crop]);
+
+    if (uploadLoading) {
         return (
-            <Loading/>
-        )
+            <Loading />
+        );
     }
 
     return (
@@ -169,42 +180,42 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onImagesChange, o
                 </div>
             ))}
 
-<Modal
-    isOpen={modalIsOpen}
-    onRequestClose={handleModalClose}
-    contentLabel="Crop Image"
-    className="fixed inset-0 flex items-center justify-center"
-    overlayClassName="fixed inset-0 bg-black bg-opacity-75"
-    appElement={document.getElementById('root') || undefined}
->
-    <div className="bg-white p-4 rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mt-5 overflow-auto">
-        <h2 className="text-xl mb-4">Crop Image</h2>
-        {src && (
-            <ReactCrop
-                src={src}
-                crop={crop}
-                onImageLoaded={handleImageLoaded}
-                onChange={setCrop}
-                className="w-full h-full"  
-            />
-        )}
-        <div className="flex justify-end gap-2 mt-4">
-            <button
-                className="px-4 py-2 bg-gray-300 rounded"
-                onClick={handleModalClose}
+            <Modal
+                isOpen={modalIsOpen}
+                onRequestClose={handleModalClose}
+                contentLabel="Crop Image"
+                className="fixed inset-0 flex items-center justify-center"
+                overlayClassName="fixed inset-0 bg-black bg-opacity-75"
+                appElement={document.getElementById('root') || undefined}
             >
-                Cancel
-            </button>
-            <button
-                className="px-4 py-2 bg-blue-500 text-white rounded"
-                onClick={handleSubmit}
-            >
-                Submit
-            </button>
-        </div>
-    </div>
-</Modal>
-
+                <div className="bg-white p-4 rounded-lg w-full md:w-3/4 lg:w-2/3 xl:w-1/2 mt-5 overflow-auto">
+                    <h2 className="text-xl mb-4">Crop Image</h2>
+                    {src && (
+                        <ReactCrop
+                            src={src}
+                            crop={crop}
+                            onImageLoaded={handleImageLoaded}
+                            onChange={setCrop}
+                            className="w-full h-full"
+                        />
+                    )}
+                    <div className="flex justify-end gap-2 mt-4">
+                        <button
+                            className="px-4 py-2 bg-gray-300 rounded"
+                            onClick={handleModalClose}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className={`px-4 py-2 text-white rounded ${isCropValid ? 'bg-blue-500' : 'bg-gray-400 cursor-not-allowed'}`}
+                            onClick={handleSubmit}
+                            disabled={!isCropValid} 
+                        >
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };

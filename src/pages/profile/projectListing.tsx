@@ -42,7 +42,6 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
   const Toast = useShowToast();
   const navigate = useNavigate();
   const user = Store((config) => config.user);
-
   const toggleDropdown = (index: number) => {
     if (openDropdownIndex === index) {
       setOpenDropdownIndex(null);
@@ -118,7 +117,7 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
           if (response && response.data && response.data.posts.length > 0) {
             sestLoading(false)
             setProjects(response.data.posts);
-            setTotalPages(response.totalPages);
+            setTotalPages(response.totalPages-1);
             setIsEmpty(false);
           } else {
             sestLoading(false)
@@ -165,6 +164,14 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
       </div>
     );
   }
+
+  const handleEdit=(projectId:string,projectStatus:string)=>{
+    if(projectStatus=='Approved'){
+      Toast("The project is ongoing you can't delete the project", 'error', true);
+      return;
+    }
+    navigate(`/${user.role.toLocaleLowerCase()}/editproject/${projectId}`)
+  }
  
 
   return (
@@ -189,7 +196,7 @@ const ProjectListing: React.FC<Prop> = ({ action }) => {
                     <div className="absolute top-10 right-0 w-40 bg-white shadow-lg rounded-lg py-2 z-10">
                       <button
                         className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => alert("Edit clicked")}
+                        onClick={() => handleEdit(project._id,project.status)}
                       >
                         <FiEdit className="mr-2" /> Edit
                       </button>

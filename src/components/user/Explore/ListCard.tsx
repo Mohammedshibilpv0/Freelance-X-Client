@@ -1,6 +1,6 @@
 import Card from '../Card/card';
 import Store from '../../../store/store';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { posts, gigs } from '../../../api/user/userServices';
 import { useNavigate } from 'react-router-dom';
 import Pagination from '../pagination/Pagination';
@@ -27,6 +27,7 @@ const ListCard:React.FC<prop> = ({ filters }) => {
   const [totalPages, setTotalPages] = useState<number>(10);
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const lastFilters = useRef<Filter>({});
   const limit = 9; 
 
   useEffect(() => {
@@ -34,7 +35,6 @@ const ListCard:React.FC<prop> = ({ filters }) => {
       setLoading(true);
       try {
         const activeFilters = { ...filters };
-        // if (!activeFilters.category) delete activeFilters.category;
         if (!activeFilters.subcategory) delete activeFilters.subcategory;
     
         const response = role === 'Client'
@@ -43,6 +43,7 @@ const ListCard:React.FC<prop> = ({ filters }) => {
     
         setProjects(response.data);
         setTotalPages(response.totalPages);
+        lastFilters.current = activeFilters;
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {

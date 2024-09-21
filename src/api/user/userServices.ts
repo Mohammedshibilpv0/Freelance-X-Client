@@ -100,6 +100,20 @@ export const createClientPost = async (formData: FormData, email: string) => {
   }
 };
 
+export const editClientPost = async (formData: FormData, id: string) => {
+  try {
+    const response = await axiosInstance.put(`/client/editclientpost/${id}`, {
+      formData,
+    });
+    return response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+};
+
 export const createGig = async (formData: FormValues, email: string) => {
   try {
     const response = await axiosInstance.post("/freelancer/createGig", {
@@ -114,6 +128,23 @@ export const createGig = async (formData: FormValues, email: string) => {
     }
   }
 };
+
+
+export const editGig = async (formData: FormValues, id: string) => {
+  try {
+    const response = await axiosInstance.put(`/freelancer/editgig/${id}`, {
+      formData,
+    });
+    return response.data;
+  } catch (err) {
+    const axiosError = err as AxiosError;
+    if (axiosError.response) {
+      return axiosError.response.data;
+    }
+  }
+};
+
+
 
 export const freelancerWork = async (
   email: string,

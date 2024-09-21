@@ -23,7 +23,7 @@ interface PostGigProps {
     onNext: () => void;
 }
 
-const PostGig: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) => {
+const EditGigForm: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
     const [currentTag, setCurrentTag] = useState<string>("");
@@ -154,24 +154,25 @@ const PostGig: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) =
                     {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
                 </div>
                 
-                <div className="col-span-2 sm:col-span-1">
-    <label className="block mb-2 text-lg font-semibold text-gray-800">Category</label>
-    <select
-        name="category"
-        value={formValues.category}
-        onChange={(e) => handleCategoryChange(e.target.value)}
-        required
-        className="flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-    >
-        <option value="">Select a category</option>
-        {categories.map((category) => (
-            <option key={category._id} value={category._id}>
-                {category.name}
-            </option>
-        ))}
-    </select>
-    {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
-</div>
+                                    <div className="col-span-2 sm:col-span-1">
+                        <label className="block mb-2 text-lg font-semibold text-gray-800">Category</label>
+                        <select
+                            name="category"
+                            value={formValues.category}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
+                            required
+                            className="flex-grow p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                            <option value="">Select a category</option>
+                            {categories.map((category) => (
+                                <option key={category._id} value={category._id}>
+                                    {category.name}
+                                </option>
+                            ))}
+                        </select>
+                        <p>Current category {formValues.category}</p>
+                        {errors.category && <p className="text-red-500 text-sm mt-1">{errors.category}</p>}
+                    </div>
 
                 
                 <div className="col-span-2 sm:col-span-1">
@@ -190,6 +191,7 @@ const PostGig: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) =
                             </option>
                         ))}
                     </select>
+                    <p>Current Subcategory {formValues.subcategory}</p>
                     {errors.subcategory && <p className="text-red-500 text-sm mt-1">{errors.subcategory}</p>}
                 </div>
                 
@@ -204,7 +206,7 @@ const PostGig: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) =
                         placeholder="Enter a tag and press Enter"
                         className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
-                    <span className="text-sm text-gray-500">Press enter to add new tag </span>
+                    <span className="text-sm text-gray-500">Press enter to add new tag | {formValues.searchTags.length}/5 tags maximum.</span>
                     {errors.searchTags && <p className="text-red-500 text-sm mt-1">{errors.searchTags}</p>}
                     <div className="mt-2">
                         {formValues.searchTags.map((tag, index) => (
@@ -236,4 +238,5 @@ const PostGig: React.FC<PostGigProps> = ({ formValues, onFormChange, onNext }) =
     );
 }
 
-export default PostGig;
+export default EditGigForm;
+

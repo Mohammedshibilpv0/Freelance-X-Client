@@ -5,7 +5,8 @@ export const isValidateEmail = (Email: string): boolean => {
     "icloud.com",
     "yahoo.com",
   ];
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const emailRegex = /^[a-zA-Z0-9]+@[^\s@]+\.[^\s@]+$/;
+
   if (!emailRegex.test(Email)) {
     return false;
   }
@@ -85,8 +86,9 @@ export const countries: string[] = [
   "Mexico",
 ];
 export const validateProjectName = (projectName: string): string | undefined => {
-  return projectName.length <= 3
-    ? "Project name must be more than 3 letters."
+  const trimmedName = projectName.trim(); 
+  return trimmedName.length <= 3
+    ? "Project name must be more than 3 letters and not just whitespace."
     : undefined;
 };
 
@@ -106,8 +108,18 @@ export const validateBudget = (
 ): string | undefined => {
   const start = Number(startBudget);
   const end = Number(endBudget);
-  return start >= end ? "End budget must be greater than start budget." : undefined;
+
+  if (start < 100 || end < 100) {
+    return "Budget values must not be less than 100.";
+  }
+
+  if (start >= end) {
+    return "End budget must be greater than start budget.";
+  }
+
+  return undefined;
 };
+
 
 export const validateDeadline = (deadline: string): string | undefined => {
   const today = new Date().toISOString().split("T")[0];

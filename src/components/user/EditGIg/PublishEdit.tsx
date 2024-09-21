@@ -1,11 +1,10 @@
 import React, { useState } from "react";
 import Carousal from "../Carousal/Carousal";
-import { createClientPost,createGig } from "../../../api/user/userServices";
+import {  editClientPost, editGig } from "../../../api/user/userServices";
 import { FormData as PostData } from "../../../pages/user/CreatePost";
 import { FormValues as GigData } from "../../../pages/user/CreateGig";
 import useShowToast from "../../../Custom Hook/showToaster";
 import { useNavigate } from "react-router-dom";
-import Store from "../../../store/store";
 import Loading from "../../../style/loading";
 
 interface PublishProps {
@@ -16,15 +15,15 @@ interface PublishProps {
   type: "post" | "gig";
 }
 
-const Publish: React.FC<PublishProps> = ({
+const PublishEdit: React.FC<PublishProps> = ({
   data,
   categories,
   subcategories,
   onPrev,
   type,
 }) => {
-  const email = Store((config) => config.user.email);
-  const [loading,setLoading]=useState<boolean>(false)
+
+    const [loading,setLoading]=useState<boolean>(false)
   const getCategoryName = () => {
     if (typeof categories === "string") {
       return categories;
@@ -47,26 +46,26 @@ const Publish: React.FC<PublishProps> = ({
   };
 
   const handlePublish = async () => {
+    setLoading(true)
     try {
-      setLoading(true)
       if (type === "post") {
-        const response = await createClientPost(data as PostData, email);
-        if (response.message === "successfully post added") {
-          setLoading(false)
+        const response = await editClientPost(data as PostData, data._id??'');
+        if (response.message === "Project edited successfully") {
+            setLoading(false)
           Toster(response.message, "success", true);
           navigate("/profile");
         }
       } else if (type === "gig") {
-        const response = await createGig(data as GigData,email);
-        if (response.message === "successfully post added") {
-          setLoading(false)
+        const response = await editGig(data as GigData,data._id??'');
+        if (response.message === "Project edited successfully") {
+            setLoading(false)
           Toster(response.message, "success", true);
           navigate("/profile");
         }
       }
     } catch (err) {
+        setLoading(false)
       console.error("Error publishing:", err);
-      setLoading(false)
     }
   };
 
@@ -166,11 +165,11 @@ const Publish: React.FC<PublishProps> = ({
           className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
           onClick={!loading ? handlePublish : undefined}
         >
-        {loading?<Loading/>:'Submit'}
+          {loading?<Loading/>:'Submit'}
         </button>
       </div>
     </div>
   );
 };
 
-export default Publish;
+export default PublishEdit;

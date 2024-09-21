@@ -5,6 +5,7 @@ import MoreDetails from '../../components/user/Gig/moreDetails';
 import Publish from '../../components/user/CreatePost/Publish';
 
 export interface FormValues {
+    _id?:string
     projectName: string;
     description: string;
     category: string;

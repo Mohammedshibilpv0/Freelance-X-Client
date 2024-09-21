@@ -14,6 +14,7 @@ import toastr from "toastr";
 import Loading from "../../../style/loading";
 import Otp from "../../../components/auth/otp/otp";
 import GoogleAuth from "../googleAuth/googleAuth";
+import useShowToast from "../../../Custom Hook/showToaster";
 
 const Register = () => {
   const [email, setEmail] = useState<string>("");
@@ -28,7 +29,7 @@ const Register = () => {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [otpSent, setOtpSent] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const Toaster=useShowToast()
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
@@ -79,7 +80,7 @@ const Register = () => {
     const errors = validateForm();
 
     if (errors.length > 0) {
-      errors.forEach((error) => toastr.error(error));
+      errors.forEach((error) => Toaster(error,'error',true));
       setFormSubmitted(false);
       return;
     }

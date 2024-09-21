@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import ImageForm from "../../components/user/CreatePost/ImageForm";
-import PostForm from "../../components/user/CreatePost/PostForm";
 import StepperComponent from "../../components/user/stepper/Stepper";
-import Publish from "../../components/user/CreatePost/Publish";
-import { fetchSubcategories , fetchCategory} from "../../api/user/userServices";
+import { fetchSubcategories , fetchCategory, getClientPostById} from "../../api/user/userServices";
+import { useParams } from "react-router-dom";
+import EditPostForm from "../../components/user/editPost/EditPostForm";
+import EditPostImageForm from "../../components/user/editPost/editPostImageForm";
+import PublishEdit from "../../components/user/EditGIg/PublishEdit";
 
 export interface FormData {
   _id?:string
@@ -30,8 +31,11 @@ export interface Subcategory {
   name: string;
 }
 
-const CreatePost: React.FC = () => {
+const EditPost: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
   const [step, setStep] = useState(0);
+
+  
   const [formData, setFormData] = useState<FormData>({
     projectName: '',
     description: '',
@@ -45,6 +49,19 @@ const CreatePost: React.FC = () => {
     category: '',
     subcategory: ''
   });
+
+  useEffect(() => {
+    const fetchGigData = async () => {
+        try {
+            const response = await getClientPostById(id, undefined);
+            setFormData(response.data);
+        } catch (error) {
+            console.error("Error fetching gig data:", error);
+        }
+    };
+
+    fetchGigData();
+}, [id]); 
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
@@ -101,14 +118,14 @@ const CreatePost: React.FC = () => {
     <div>
       <StepperComponent currentStep={step} stepTitles={steps} />
       {step === 0 && (
-        <PostForm
+        <EditPostForm
           formData={formData}
           onFormDataChange={handleFormDataChange}
           onNext={handleNext}
         />
       )}
       {step === 1 && (
-        <ImageForm
+        <EditPostImageForm
           formData={formData}
           onFormDataChange={handleFormDataChange}
           onPrev={handlePrev}
@@ -119,7 +136,7 @@ const CreatePost: React.FC = () => {
         />
       )}
       {step === 2 && (
-        <Publish
+        <PublishEdit
           type="post"
           data={formData}
           categories={categories}
@@ -131,4 +148,4 @@ const CreatePost: React.FC = () => {
   );
 };
 
-export default CreatePost;
+export default EditPost;

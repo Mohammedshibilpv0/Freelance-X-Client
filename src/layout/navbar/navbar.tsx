@@ -75,7 +75,6 @@ const Navbar: React.FC = () => {
       };
 
       const handleNotification = (data: INotification) => {
-        console.log(data)
         Toast(data.message,'success',true)
       };
       socket.on('notification', handleNotification);
